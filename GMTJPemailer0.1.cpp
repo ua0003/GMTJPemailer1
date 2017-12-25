@@ -17,7 +17,8 @@ char* attachment;
 
 void print_usage(ostream& os, int exit_code) 
 	{
-		cout << "Usage : %s options\n" << program_name << endl;
+		cout << "Usage : "<<program_name<< "-t <to_email> -c <cc_email> -b <bcc_email> -s <subject> -m <message> -a <attachment_path>\n"
+		 <<endl<<program_name<< " -f <config_prompts>\n"<<endl<< program_name << endl;
 		cout << " -h --help Display this usage information." << endl
 		<< " -v --version Display the version of the application." << endl
 		<< " -t --to Requires an argument, email address of recipient." << endl
@@ -52,12 +53,10 @@ int main(int argc, char* argv[])
 	}; 
 	program_name = argv[0];
 
-//	while(1) //currently works
 	do
 	{
 		optionCount = getopt_long (argc,argv,short_options,long_options,NULL);
 		
-//		while(optionCount != -1) //never ends...
 		switch (optionCount) 
 		{
 			cout<<optionCount;
@@ -67,7 +66,6 @@ int main(int argc, char* argv[])
 			case 'v':
 			cout<< "This is version 0.2 of GMTJPemailer."<<endl;
 			break;
-			
 			
 			case 't':
 			to = optarg;
@@ -109,5 +107,8 @@ int main(int argc, char* argv[])
 	} 		
 	while (optionCount != -1);
 	cout<<to<<endl;
+//	cout<<cc<<endl;
+	cout<<subject<<endl;
+	cout<<message<<endl;
 	return 0;
 }
