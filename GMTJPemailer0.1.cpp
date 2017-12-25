@@ -14,7 +14,7 @@ void print_usage(ostream& os, int exit_code)
 	{
 		cout << "Usage : %s options [ inputfile ... ]\n" << program_name << endl;
 		cout << " -h --help Display this usage information." << endl
-		<< " -t --to Requires an argument as to what email address you would like ot send to." << endl
+		<< " -t --to Requires an argument, what email address you would like to send to." << endl
 		<< " -v --version Display the version of the application." << endl;
 		exit (exit_code);
 	}
@@ -62,6 +62,6 @@ program_name = argv[0];
 		}
 	} 		
 	while (optionCount != -1);
-	cout<<to;
+	cout<<to<<endl;
 	return 0;
 }
