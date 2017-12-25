@@ -39,14 +39,14 @@ int main(int argc, char* argv[])
 
 	const struct option long_options[] = 
 	{
-		{ "help", 0, NULL, 'h' },
-		{ "version", 0, NULL, 'v' },
+		{ "help", 0, 0, 'h' },
+		{ "version", 0, 0, 'v' },
 		{ "to", 1, NULL, 't' },
-		{ "cc", 0, NULL, 'c'},
-		{ "bcc", 0, NULL, 'b'},
-		{ "subject", 0, NULL, 's'},
-		{ "message", 0, NULL, 'm'},
-		{ "attachment", 0, NULL, 'a'},
+		{ "cc", 2, NULL, 'c'},
+		{ "bcc", 2, NULL, 'b'},
+		{ "subject", 1, NULL, 's'},
+		{ "message", 1, NULL, 'm'},
+		{ "attachment", 2, NULL, 'a'},
 		{ "configure", 0, NULL, 'f'},
 		
 		{ NULL, 0, NULL, 0 }
