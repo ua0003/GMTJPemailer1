@@ -17,8 +17,8 @@ char* attachment;
 
 void print_usage(ostream& os, int exit_code) 
 	{
-		cout << "Usage : "<<program_name<< "-t <to_email> -c <cc_email> -b <bcc_email> -s <subject> -m <message> -a <attachment_path>\n"
-		 <<endl<<program_name<< " -f <config_prompts>\n"<<endl<< program_name << endl;
+		cout << "Usage : "<<program_name<< "-t <to_email> -c <cc_email> -b <bcc_email> -s <subject> -m <message> -a <attachment_path>\n\n"
+		 <<endl<<program_name<< " -f <config_prompts>\n"<<endl<< program_name << endl<<endl;
 		cout << " -h --help Display this usage information." << endl
 		<< " -v --version Display the version of the application." << endl
 		<< " -t --to Requires an argument, email address of recipient." << endl
@@ -62,10 +62,11 @@ int main(int argc, char* argv[])
 			cout<<optionCount;
 			case 'h':
 			print_usage(cout, 0);
-
+			
+			int exit_code2;
 			case 'v':
 			cout<< "This is version 0.2 of GMTJPemailer."<<endl;
-			break;
+			exit (exit_code2);
 			
 			case 't':
 			to = optarg;
