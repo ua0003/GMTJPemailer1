@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 		{ "subject", 1, NULL, 's'},
 		{ "message", 1, NULL, 'm'},
 		{ "attachment", 2, NULL, 'a'},
-		{ "configure", 0, NULL, 'f'},
+		{ "configure", 0, 0, 'f'},
 		
 		{ NULL, 0, NULL, 0 }
 	}; 
