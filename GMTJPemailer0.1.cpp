@@ -17,7 +17,7 @@ char* attachment;
 
 void print_usage(ostream& os, int exit_code) 
 	{
-		cout << "Usage : "<<program_name<< "-t <to_email> -c <cc_email> -b <bcc_email> -s <subject> -m <message> -a <attachment_path>\n\n"
+		cout << "\nUsage : "<<program_name<< "-t <to_email> -c <cc_email> -b <bcc_email> -s <subject> -m <message> -a <attachment_path>\n\n"
 		 <<endl<<program_name<< " -f <config_prompts>\n"<<endl<< program_name << endl<<endl;
 		cout << " -h --help Display this usage information." << endl
 		<< " -v --version Display the version of the application." << endl
