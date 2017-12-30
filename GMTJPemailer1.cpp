@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 			print_usage(cout, 0);
 
 			case 'v':
-			cout<< "This is version 0.2 of GMTJPemailer."<<endl;
+			cout<< "This is version 1.0 of GMTJPemailer."<<endl;
 			exit (0);
 			
 			case 't':
