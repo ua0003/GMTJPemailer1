@@ -3,7 +3,8 @@
 
 //include statements
 #include <iostream>
-// need to addd glib and gmime still
+// need to add gmime still
+//#include "glib/*"
 #include <string>
 #include <getopt.h>  //used for arg parsing options
 #include <cstdlib>
@@ -20,7 +21,7 @@ char* attachment;
 //structure to hold smtp information
 struct smtpConfig
 {
-	string smtp_name;
+	string name;
 	int port;
 	string user_name;
 	string password;
@@ -120,7 +121,42 @@ int main(int argc, char* argv[])
 		}
 	} 		
 	while (optionCount != -1);
+//CONFIG FUNC
+int config();
+{
+	smtpConfig one {};
+	cout<<"Please enter the SMTP address. i.e. smtp.gmail.com"<<endl;
+	cin>> one.name;
+	//cin.get(one.name,100).get();
 
+	cout<<"Please enter the SMTP port number. i.e. 587"<<endl;
+	cin >>one.port;
+	cin.get();
+	//cin.get(one.port,3).get();
+
+	cout <<"Please enter your name. i.e. John Smith"<<endl;
+	getline(cin,one.user_name);
+	//cin.get(one.from_name,100).get();
+	
+	cout<<"Please enter the email address you will be sending from."<<endl;
+	cin >>one.from_email_address;
+	//cin.get(one.from_email_address).get();
+	
+	cout<<"Please enter the username you use to access your email account."<<endl;
+	cin>>one.from_name;
+	//cin.get(one.user_name).get();
+	
+	cout<<"Pleae enter the password youuse to access your email account."<<endl;
+	cin>>one.password;
+	
+	//test out statements
+	cout<<one.name<<endl;
+	cout<<one.port<<endl;
+	cout<<one.user_name<<endl;
+	cout<<one.from_email_address<<endl;
+	cout<<one.from_name<<endl;
+	cout<<one.password<<endl;
+}
 	//cout statments for trouble shooting.
 	cout<<to<<endl;
 //	cout<<cc<<endl;
