@@ -47,22 +47,33 @@ void print_usage(ostream& os, int exit_code)
 		exit (exit_code);
 	}
 //CONFIG FUNC
-int config()
+smtpConfig configSMTP()
 {
 
 	smtpConfig mysmtp {};
 	int checker;
 	checker = 1;
 	GRegex* smtpRegex;
-	smtpRegex = g_regex_new("/[smtpmail]{4}.\w*.\w{3}/",G_REGEX_CASELESS,G_REGEX_MATCH_NOTEMPTY,NULL);
-
+	GRegex* dummyRegex;
+	GMatchInfo *match_info;
+	//Gerror *error=NULL
+	smtpRegex = g_regex_new("smtp.\w*.\w{3}",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
+    dummyRegex = g_regex_new("smtp.gmail.com",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
 	while (checker == 1)
 	{
 
         cout<<"Please enter the SMTP address. i.e. smtp.gmail.com"<<endl;
         cin>> mysmtp.name;
+        cout<<mysmtp.name<<endl;
+        cout<<g_regex_match_full(smtpRegex,mysmtp.name,-1,0,G_REGEX_MATCH_ANCHORED,&match_info, NULL)<<endl;
+        cout<<g_match_info_is_partial_match(match_info)<<endl;
+        cout<<g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_ANCHORED,&match_info)<<endl;
+        cout<<g_regex_match(dummyRegex,mysmtp.name,G_REGEX_MATCH_ANCHORED,&match_info)<<endl;
 
-        if(TRUE == g_regex_match_full(smtpRegex,mysmtp.name,-1,0,G_REGEX_MATCH_NOTEMPTY,NULL, NULL))
+        if(TRUE == g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_ANCHORED,&match_info))
+
+
+        //if(TRUE == g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_NOTEMPTY,NULL))
         {
         g_print("SMTP server address accepted.");
         checker = 0;
@@ -102,7 +113,7 @@ int config()
 	cout<<mysmtp.from_email_address<<endl;
 	cout<<mysmtp.from_name<<endl;
 	cout<<mysmtp.password<<endl;
-	return 0;//mysmtp;
+	return mysmtp;//mysmtp;
 }
 
 int main(int argc, char* argv[])
@@ -164,9 +175,9 @@ int main(int argc, char* argv[])
 			case 'a':
 			attachment = optarg;
 			break;
-//TODO: FIX CONFIG FILE CONFIGURATION
+
 			case 'f':
-			config();
+			configSMTP();
 			break;
 
 			case '?':
