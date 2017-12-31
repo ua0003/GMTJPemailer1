@@ -81,8 +81,8 @@ int config()
 	//cin.get(one.port,3).get();
 
 	cout <<"Please enter your name. i.e. John Smith"<<endl;
-	getline(cin,mysmtp.user_name);
-	//cin.get(one.from_name,100).get();
+	//cin.getline(mysmtp.user_name);
+	cin.get(mysmtp.from_name,100).get();
 
 	cout<<"Please enter the email address you will be sending from."<<endl;
 	cin >>mysmtp.from_email_address;
