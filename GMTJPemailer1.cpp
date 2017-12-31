@@ -22,12 +22,12 @@ char* attachment;
 //structure to hold smtp information
 struct smtpConfig
 {
-	string name;
+	char * name = new char [50];
 	int port;
-	string user_name;
-	string password;
-	string from_name;
-	string from_email_address;
+	char * user_name = new char [50];
+	char * password = new char [50];
+	char * from_name = new char [50];
+	char * from_email_address = new char [60];
 };
 //print usage statement for help or incorrect option
 void print_usage(ostream& os, int exit_code)
@@ -62,7 +62,7 @@ int config()
         cout<<"Please enter the SMTP address. i.e. smtp.gmail.com"<<endl;
         cin>> mysmtp.name;
 
-        if(TRUE == g_regex_match_full(smtpRegex,mysmtp.name,-1,0,0,NULL, NULL))
+        if(TRUE == g_regex_match_full(smtpRegex,mysmtp.name,-1,0,G_REGEX_MATCH_NOTEMPTY,NULL, NULL))
         {
         g_print("SMTP server address accepted.");
         checker = 0;
