@@ -57,7 +57,7 @@ smtpConfig configSMTP()
 
 	GMatchInfo *match_info;
 	//Gerror *error=NULL
-	smtpRegex = g_regex_new("(smtp.[a-z]*[a-z]{3})",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
+	smtpRegex = g_regex_new("(smtp[a-z.]*[a-z.]{4})",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
 
 	while (checker == 1)
 	{
@@ -84,24 +84,21 @@ smtpConfig configSMTP()
         }
 	}
 
-	//cin.get(one.name,100).get();
+//get rest of data
 
 	cout<<"Please enter the SMTP port number. i.e. 587"<<endl;
 	cin >>mysmtp.port;
 	cin.get();
-	//cin.get(one.port,3).get();
 
+    int arSize = 50;
 	cout <<"Please enter your name. i.e. John Smith"<<endl;
-	//cin.getline(mysmtp.user_name);
-	cin.get(mysmtp.from_name,100).get();
+	cin.getline(mysmtp.user_name,arSize);
 
 	cout<<"Please enter the email address you will be sending from."<<endl;
 	cin >>mysmtp.from_email_address;
-	//cin.get(one.from_email_address).get();
 
 	cout<<"Please enter the username you use to access your email account."<<endl;
 	cin>>mysmtp.from_name;
-	//cin.get(one.user_name).get();
 
 	cout<<"Pleae enter the password youuse to access your email account."<<endl;
 	cin>>mysmtp.password;
