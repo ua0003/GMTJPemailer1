@@ -54,21 +54,21 @@ smtpConfig configSMTP()
 	int checker;
 	checker = 1;
 	GRegex* smtpRegex;
-	GRegex* dummyRegex;
+
 	GMatchInfo *match_info;
 	//Gerror *error=NULL
-	smtpRegex = g_regex_new("smtp.\w*.\w{3}",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
-    dummyRegex = g_regex_new("smtp.gmail.com",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
+	smtpRegex = g_regex_new("(smtp.[a-z]*[a-z]{3})",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
+
 	while (checker == 1)
 	{
 
         cout<<"Please enter the SMTP address. i.e. smtp.gmail.com"<<endl;
         cin>> mysmtp.name;
-        cout<<mysmtp.name<<endl;
-        cout<<g_regex_match_full(smtpRegex,mysmtp.name,-1,0,G_REGEX_MATCH_ANCHORED,&match_info, NULL)<<endl;
-        cout<<g_match_info_is_partial_match(match_info)<<endl;
-        cout<<g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_ANCHORED,&match_info)<<endl;
-        cout<<g_regex_match(dummyRegex,mysmtp.name,G_REGEX_MATCH_ANCHORED,&match_info)<<endl;
+        cout<<"You entered: "<<mysmtp.name<<endl;
+        //cout<<g_regex_match_full(smtpRegex,mysmtp.name,-1,0,G_REGEX_MATCH_ANCHORED,&match_info, NULL)<<endl;
+        //cout<<g_match_info_is_partial_match(match_info)<<endl;
+        //cout<<g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_ANCHORED,&match_info)<<endl;
+
 
         if(TRUE == g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_ANCHORED,&match_info))
 
