@@ -42,7 +42,7 @@ void print_usage(ostream& os, int exit_code)
 		<< " -s --subject Requires an argument, email subject. (enter in '' )" <<endl
 		<< " -m --message Requires an argument, email text//body. (enter in '')" <<endl
 		<< " -a --attachment Requires an argument, file path to attachment." <<endl
-		<< " -f --configure used to setup initially. Will request SMTP server name, port number, email address, and password." <<endl;
+		<< " -f --configure used to setup initially. Will request SMTP server name, port number, your name, email address, user name, and password." <<endl;
 
 		exit (exit_code);
 	}
@@ -54,14 +54,12 @@ smtpConfig configSMTP()
 	int checker;
 	checker = 1;
 	GRegex* smtpRegex;
-
 	GMatchInfo *match_info;
-	//Gerror *error=NULL
+	//regex...use posix...no \w character!
 	smtpRegex = g_regex_new("(smtp[a-z.]*[a-z.]{4})",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
-
+//while loop to check and see if smtp address entered correctly or with typo. i.e. smtp,gmail.com
 	while (checker == 1)
 	{
-
         cout<<"Please enter the SMTP address. i.e. smtp.gmail.com"<<endl;
         cin>> mysmtp.name;
         cout<<"You entered: "<<mysmtp.name<<endl;
@@ -69,9 +67,7 @@ smtpConfig configSMTP()
         //cout<<g_match_info_is_partial_match(match_info)<<endl;
         //cout<<g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_ANCHORED,&match_info)<<endl;
 
-
         if(TRUE == g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_ANCHORED,&match_info))
-
 
         //if(TRUE == g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_NOTEMPTY,NULL))
         {
@@ -195,6 +191,7 @@ int main(int argc, char* argv[])
 //	cout<<cc<<endl;
 	cout<<subject<<endl;
 	cout<<message<<endl;
+
 	return 0;
 }
 
