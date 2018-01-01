@@ -62,7 +62,7 @@ smtpConfig configSMTP()
 	GRegex* smtpRegex;
 	GMatchInfo *match_info;
 	//regex...use posix...no \w character!
-	smtpRegex = g_regex_new("((smtp|mail)([a-z.]*[.a-z]{4}))",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
+	smtpRegex = g_regex_new("((smtp|mail)\\.[a-z]+\\.(com|net))",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
 //while loop to check and see if smtp address entered correctly or with typo. i.e. smtp,gmail.com
 	while (checker == 1)
 	{
