@@ -12,15 +12,7 @@
 #include <cstdlib>
 #include <fstream> //used for binary serialization
 
-//variables
-using namespace std;
-const char* program_name;
-char* to;
-char* cc;
-char* bcc;
-char* subject;
-char* message;
-char* attachment;
+
 //structure to hold smtp information
 struct smtpConfig
 {
@@ -31,7 +23,19 @@ struct smtpConfig
 	char * from_name = new char [50];
 	char * from_email_address = new char [60];
 };
-//print usage statement for help or incorrect option
+
+//variables
+using namespace std;
+const char* program_name;
+char* to;
+char* cc;
+char* bcc;
+char* subject;
+char* message;
+char* attachment;
+smtpConfig smtpObj;
+
+//print usage statement for help or incorrect options
 void print_usage(ostream& os, int exit_code)
 	{
 		cout << "\nUsage : "<<program_name<< "-t <to_email> -c <cc_email> -b <bcc_email> -s <subject> -m <message> -a <attachment_path>\n\n"
@@ -58,7 +62,7 @@ smtpConfig configSMTP()
 	GRegex* smtpRegex;
 	GMatchInfo *match_info;
 	//regex...use posix...no \w character!
-	smtpRegex = g_regex_new("((smtp|mail)[a-z.]*[a-z.]{4})",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
+	smtpRegex = g_regex_new("((smtp|mail)([a-z.]*[.a-z]{4}))",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
 //while loop to check and see if smtp address entered correctly or with typo. i.e. smtp,gmail.com
 	while (checker == 1)
 	{
@@ -79,7 +83,7 @@ smtpConfig configSMTP()
         }
         else
         {
-        g_print("That doesn't look like it will work. Let's try that again.");
+        g_print("That doesn't look like it will work. Let's try that again.\n");
         }
 	}
 
@@ -88,15 +92,14 @@ smtpConfig configSMTP()
     checker = 1;
     while(checker ==1)
     {
-        cout<<"Please enter the SMTP port number. i.e. 587"<<endl;
+        cout<<endl<<"Please enter the SMTP port number. i.e. 587"<<endl;
         cin >>mysmtp.port;
         cin.get();
         char * x {mysmtp.port};
-
         int len = strlen(x);
-        cout<<"X is "<<*x<<endl;
-        cout<<"Len is "<<len<<endl;
-        cout<<"The port number length is "<<len<<endl;
+        //cout<<"X is "<<*x<<endl;
+        //cout<<"Len is "<<len<<endl;
+        //cout<<"The port number length is "<<len<<endl;
         if(len == 2||
             len == 3)
 
@@ -113,12 +116,15 @@ smtpConfig configSMTP()
     int arSize = 50;
 	cout <<"Please enter your name. i.e. John Smith"<<endl;
 	cin.getline(mysmtp.user_name,arSize);
+	cout<<endl;
 
 	cout<<"Please enter the email address you will be sending from."<<endl;
 	cin >>mysmtp.from_email_address;
+	cout<<endl;
 
 	cout<<"Please enter the username you use to access your email account."<<endl;
 	cin>>mysmtp.from_name;
+    cout<<endl;
 
 	cout<<"Pleae enter the password youuse to access your email account."<<endl;
 	cin>>mysmtp.password;
@@ -194,7 +200,8 @@ int main(int argc, char* argv[])
 			break;
 
 			case 'f':
-			configSMTP();
+//smtpConfig theSMTPconfig;
+            smtpObj = configSMTP();
 			break;
 
 			case '?':
@@ -215,7 +222,7 @@ int main(int argc, char* argv[])
 //	cout<<cc<<endl;
 	cout<<subject<<endl;
 	cout<<message<<endl;
-
+    cout<<smtpObj.port<<endl;
 	return 0;
 }
 
