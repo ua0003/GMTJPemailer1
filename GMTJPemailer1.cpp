@@ -3,12 +3,10 @@
 
 //include statements
 #include <iostream>
-// need to add gmime still
 #include <gmime/gmime.h>
 #include <glib-2.0/glib.h>
 #include <curl/curl.h>
-//#include "CSmtp.h"
-#include <string>
+#include <string.h>
 #include <cstring>
 #include <getopt.h>  //used for arg parsing options
 #include <cstdlib>
@@ -64,7 +62,7 @@ smtpConfig configSMTP()
 	GRegex* smtpRegex;
 	GMatchInfo *match_info;
 	//regex...use posix...no \w character!
-	smtpRegex = g_regex_new("((smtp|mail)\\.[a-z]+\\.(com|net))",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
+	smtpRegex = g_regex_new("((smtp|mail)\\.[a-z.]+\\.(com|net))",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
 //while loop to check and see if smtp address entered correctly or with typo. i.e. smtp,gmail.com
 	while (checker == 1)
 	{
@@ -94,7 +92,7 @@ smtpConfig configSMTP()
     checker = 1;
     while(checker ==1)
     {
-        cout<<endl<<"Please enter the SMTP port number. i.e. 587"<<endl;
+        cout<<endl<<"Please enter the SMTP port number. i.e. 465"<<endl;
         cin >>mysmtp.port;
         cin.get();
         char * x {mysmtp.port};
