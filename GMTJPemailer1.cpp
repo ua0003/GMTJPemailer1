@@ -7,9 +7,11 @@
 #include <glib-2.0/glib.h>
 
 #include <string>
+#include <cstring>
 #include <getopt.h>  //used for arg parsing options
 #include <cstdlib>
 #include <fstream> //used for binary serialization
+
 //variables
 using namespace std;
 const char* program_name;
@@ -23,7 +25,7 @@ char* attachment;
 struct smtpConfig
 {
 	char * name = new char [50];
-	int port;
+	char * port = new char [5];
 	char * user_name = new char [50];
 	char * password = new char [50];
 	char * from_name = new char [50];
@@ -42,7 +44,7 @@ void print_usage(ostream& os, int exit_code)
 		<< " -s --subject Requires an argument, email subject. (enter in '' )" <<endl
 		<< " -m --message Requires an argument, email text//body. (enter in '')" <<endl
 		<< " -a --attachment Requires an argument, file path to attachment." <<endl
-		<< " -f --configure used to setup initially. Will request SMTP server name, port number, your name, email address, user name, and password." <<endl;
+		<< " -f --configure Used to setup initially. Will request SMTP server name, port number, your name, email address, user name, and password." <<endl;
 
 		exit (exit_code);
 	}
@@ -56,12 +58,13 @@ smtpConfig configSMTP()
 	GRegex* smtpRegex;
 	GMatchInfo *match_info;
 	//regex...use posix...no \w character!
-	smtpRegex = g_regex_new("(smtp[a-z.]*[a-z.]{4})",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
+	smtpRegex = g_regex_new("((smtp|mail)[a-z.]*[a-z.]{4})",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
 //while loop to check and see if smtp address entered correctly or with typo. i.e. smtp,gmail.com
 	while (checker == 1)
 	{
         cout<<"Please enter the SMTP address. i.e. smtp.gmail.com"<<endl;
         cin>> mysmtp.name;
+        cout<<endl;
         cout<<"You entered: "<<mysmtp.name<<endl;
         //cout<<g_regex_match_full(smtpRegex,mysmtp.name,-1,0,G_REGEX_MATCH_ANCHORED,&match_info, NULL)<<endl;
         //cout<<g_match_info_is_partial_match(match_info)<<endl;
@@ -71,7 +74,7 @@ smtpConfig configSMTP()
 
         //if(TRUE == g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_NOTEMPTY,NULL))
         {
-        g_print("SMTP server address accepted.");
+        g_print("SMTP server address accepted.\n");
         checker = 0;
         }
         else
@@ -81,11 +84,32 @@ smtpConfig configSMTP()
 	}
 
 //get rest of data
+//check to make sure that the port number is either 2 or 3 digits.
+    checker = 1;
+    while(checker ==1)
+    {
+        cout<<"Please enter the SMTP port number. i.e. 587"<<endl;
+        cin >>mysmtp.port;
+        cin.get();
+        char * x {mysmtp.port};
 
-	cout<<"Please enter the SMTP port number. i.e. 587"<<endl;
-	cin >>mysmtp.port;
-	cin.get();
+        int len = strlen(x);
+        cout<<"X is "<<*x<<endl;
+        cout<<"Len is "<<len<<endl;
+        cout<<"The port number length is "<<len<<endl;
+        if(len == 2||
+            len == 3)
 
+        {
+            g_print("You entered a port number of acceptable length. Adding to SMTP object.\n\n");
+            checker = 0;
+        }
+        else
+        {
+            g_print("That doesn't look like it will work. Let's try that again.\n\n");
+
+        }
+    }
     int arSize = 50;
 	cout <<"Please enter your name. i.e. John Smith"<<endl;
 	cin.getline(mysmtp.user_name,arSize);
