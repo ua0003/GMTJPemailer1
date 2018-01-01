@@ -4,8 +4,9 @@
 //include statements
 #include <iostream>
 // need to add gmime still
+#include <gmime-3.0/gmime/gmime.h>
 #include <glib-2.0/glib.h>
-
+#include "CSmtp.h"
 #include <string>
 #include <cstring>
 #include <getopt.h>  //used for arg parsing options
