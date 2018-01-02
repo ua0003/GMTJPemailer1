@@ -11,17 +11,20 @@
 #include <getopt.h>  //used for arg parsing options
 #include <cstdlib>
 #include <fstream> //used for binary serialization
+#include <chrono>
+#include <ctime>
+#include <iomanip>
 
 
 //structure to hold smtp information
 struct smtpConfig
 {
-	char * name = new char [50];
-	char * port = new char [5];
-	char * user_name = new char [50];
-	char * password = new char [50];
-	char * from_name = new char [50];
-	char * from_email_address = new char [60];
+	char name[50];
+	char port[5];
+	char user_name[50];
+	char password[50];
+	char from_name[50];
+	char from_email_address[60];
 };
 
 //variables
@@ -33,7 +36,7 @@ char* bcc;
 char* subject;
 char* message;
 char* attachment;
-smtpConfig smtpObj;
+static smtpConfig smtpObj;
 
 //print usage statement for help or incorrect options
 void print_usage(ostream& os, int exit_code)
@@ -223,6 +226,10 @@ int main(int argc, char* argv[])
 	cout<<subject<<endl;
 	cout<<message<<endl;
     cout<<smtpObj.port<<endl;
+    //get current date/time http://en.cppreference.com/w/cpp/chrono/time_point
+    chrono::system_clock::time_point now = chrono::system_clock::now();
+    time_t now_c = chrono::system_clock::to_time_t(now);
+    cout<<put_time(localtime(&now_c), "%F %T")<<endl;
 	return 0;
 }
 
