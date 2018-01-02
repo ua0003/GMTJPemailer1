@@ -56,6 +56,9 @@ void print_usage(ostream& os, int exit_code)
 		exit (exit_code);
 	}
 //CONFIG FUNC
+//function prototype
+smtpConfig configSMTP();
+//function definition
 smtpConfig configSMTP()
 {
 
