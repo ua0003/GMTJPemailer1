@@ -7,6 +7,7 @@
 #include <glib-2.0/glib.h>
 #include <curl/curl.h>
 #include <string.h>
+#include <string>
 #include <cstring>
 #include <getopt.h>  //used for arg parsing options
 #include <cstdlib>
@@ -14,6 +15,8 @@
 #include <chrono>
 #include <ctime>
 #include <iomanip>
+#include <list>
+#include <vector>
 
 
 //structure to hold smtp information
@@ -26,16 +29,30 @@ struct smtpConfig
 	char from_name[50];
 	char from_email_address[60];
 };
-
+//struct smtpConfig
+//{
+//	std::string name;
+//	std::string port;
+//	std::string user_name;
+//	std::string password;
+//	std::string from_name;
+//	std::string from_email_address;
+//};
 //variables
 using namespace std;
 const char* program_name;
-char* to;
-char* cc;
-char* bcc;
-char* subject;
-char* message;
-char* attachment;
+//char* to;
+//char* cc;
+//char* bcc;
+//char* subject;
+//char* message;
+//char* attachment;
+string to;
+string cc;
+string bcc;
+string subject;
+string message;
+string attachment;
 static smtpConfig smtpObj;
 
 //print usage statement for help or incorrect options
@@ -238,17 +255,17 @@ int main(int argc, char* argv[])
 
 //#define FROM    smtpObj.name
 //#define TO      "<addressee@example.net>"
-#define CC      "<info@example.org>"
-
-static const char *payload_text[] = {
+//#define CC      "<info@example.org>"
+const char * TO = to.c_str();
+string allcc = cc+bcc;
+const char * CC = allcc.c_str();
+//static const char *payload_text[] = {
+list<string> payload_text {
   "Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n",
-  //"To: "
-  string TO = "To: ";
-
-  TO =string ("To: " + to + "\r\n")//+ "\r\n",
-  "From: " && smtpObj.from_email_address &&" (Example User)\r\n",
-  "Cc: " && cc &&" (Another example User)\r\n",
-  "Bcc:" && bcc &&"blined copied user.\r\n",
+  "To: " + to + "\r\n"//+ "\r\n",
+  "From: " + smtpObj.from_email_address +" (Example User)\r\n",
+  "Cc: " + cc + " (Another example User)\r\n",
+  "Bcc:" + bcc + "blind copied user.\r\n",
   "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
   "rfcpedant.example.org>\r\n",
   subject,
@@ -273,15 +290,22 @@ static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
     return 0;
   }
 
-  data = payload_text[upload_ctx->lines_read];
+//  data = payload_text[upload_ctx->lines_read];
+//    vector<const char *> payloadText
+//    {
+//        begin(payload_text), end(payload_text)
+//    };
+//    vector<char> playloadText(payload_text.begin(),payload_text.end());
 
-  if(data) {
-    size_t len = strlen(data);
-    memcpy(ptr, data, len);
-    upload_ctx->lines_read++;
-
-    return len;
-  }
+//    data = payloadText[upload_ctx->lines_read];
+//  data = payload_text[upload_ctx->lines_read];
+//  if(data) {
+//    size_t len = strlen(data);
+//    memcpy(ptr, data, len);
+//    upload_ctx->lines_read++;
+//
+//    return len;
+//  }
 
   return 0;
 }
