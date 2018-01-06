@@ -17,6 +17,8 @@
 #include <iomanip>
 #include <list>
 #include <vector>
+#include <sstream>
+
 
 
 //structure to hold smtp information
@@ -47,18 +49,20 @@ const char* program_name;
 //char* subject;
 //char* message;
 //char* attachment;
+
 string to;
 string cc;
 string bcc;
 string subject;
 string message;
 string attachment;
+
 static smtpConfig smtpObj;
 
 //print usage statement for help or incorrect options
 void print_usage(ostream& os, int exit_code)
 	{
-		cout << "\nUsage : "<<program_name<< "-t <to_email> -c <cc_email> -b <bcc_email> -s <subject> -m <message> -a <attachment_path>\n\n"
+		cout << "\nUsage : "<<program_name<< "  -t <to_email> -c <cc_email> -b <bcc_email> -s <subject> -m <message> -a <attachment_path>\n\n"
 		 <<endl<<program_name<< " -f <config_prompts>\n"<<endl<< program_name << endl<<endl;
 		cout << " -h --help Display this usage information." << endl
 		<< " -v --version Display the version of the application." << endl
@@ -246,19 +250,12 @@ int main(int argc, char* argv[])
 	cout<<subject<<endl;
 	cout<<message<<endl;
     cout<<smtpObj.port<<endl;
-    //get current date/time http://en.cppreference.com/w/cpp/chrono/time_point
-    chrono::system_clock::time_point now = chrono::system_clock::now();
-    time_t now_c = chrono::system_clock::to_time_t(now);
-    cout<<put_time(localtime(&now_c), "%F %T")<<endl;
+
+//    cout<<dateForEmail<<endl;
+
 	return 0;
 }
 
-//#define FROM    smtpObj.name
-//#define TO      "<addressee@example.net>"
-//#define CC      "<info@example.org>"
-const char * TO = to.c_str();
-string allcc = cc+bcc;
-const char * CC = allcc.c_str();
 //static const char *payload_text[] = {
 list<string> payload_text {
   "Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n",
@@ -274,7 +271,7 @@ list<string> payload_text {
   "\r\n",
   "It could be a lot of lines, could be MIME encoded, whatever.\r\n",
   "Check RFC5322.\r\n",
-  NULL
+  "\0"
 };
 
 struct upload_status {
@@ -283,8 +280,8 @@ struct upload_status {
 
 static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
 {
-  struct upload_status *upload_ctx = (struct upload_status *)userp;
-  const char *data;
+//  struct upload_status *upload_ctx = (struct upload_status *)userp;
+//  const char *data;
 
   if((size == 0) || (nmemb == 0) || ((size*nmemb) < 1)) {
     return 0;
@@ -363,8 +360,16 @@ int mainCurl(void)
     /* Add two recipients, in this particular case they correspond to the
      * To: and Cc: addressees in the header, but they could be any kind of
      * recipient. */
-    recipients = curl_slist_append(recipients, TO);
-    recipients = curl_slist_append(recipients, CC);
+       if(!to.empty())
+    {
+
+        const char * TO = to.c_str();
+        string allcc = cc+bcc;
+        const char * CC = allcc.c_str();
+
+        recipients = curl_slist_append(recipients, TO);
+        recipients = curl_slist_append(recipients, CC);
+    }
     curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
 
     /* We're using a callback function to specify the payload (the headers and
@@ -396,3 +401,31 @@ int mainCurl(void)
 
   return (int)res;
 }
+    string dateString()
+    {
+        //get date for email
+        // https://gist.github.com/CaptainJH/11208867
+        string dateTime;
+        auto now = std::chrono::system_clock::now();
+        auto in_time_t = std::chrono::system_clock::to_time_t(now);
+        stringstream ss;
+        ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M:%S");
+        dateTime = ss.str();
+        //http://www.cplusplus.com/forum/beginner/41434/
+        string dayOfWeek;
+        const string DAY[]={"Sun","Mon","Tue",
+        "Wed","Thu","Fri","Sat"};
+
+            time_t rawtime;
+            tm * timeinfo;
+            time(&rawtime);
+            timeinfo=localtime(&rawtime);
+
+        int wday=timeinfo->tm_wday;
+        cout << "Today is: " << DAY[wday] << "\n" << endl;
+        dayOfWeek = DAY[wday];
+        //combine day of week with date and time
+        string dateForEmail;
+        dateForEmail = dayOfWeek + " " + dateTime;
+        return dateForEmail;
+    }
