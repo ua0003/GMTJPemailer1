@@ -1,6 +1,5 @@
 //A command line program used for sending emails.
 
-
 //include statements
 #include <iostream>
 #include <gmime/gmime.h>
@@ -31,32 +30,16 @@ struct smtpConfig
 	char from_name[50];
 	char from_email_address[60];
 };
-//struct smtpConfig
-//{
-//	std::string name;
-//	std::string port;
-//	std::string user_name;
-//	std::string password;
-//	std::string from_name;
-//	std::string from_email_address;
-//};
+
 //variables
 using namespace std;
 const char* program_name;
-//char* to;
-//char* cc;
-//char* bcc;
-//char* subject;
-//char* message;
-//char* attachment;
-
 string to;
 string cc;
 string bcc;
 string subject;
 string message;
 string attachment;
-
 static smtpConfig smtpObj;
 
 //print usage statement for help or incorrect options
@@ -79,92 +62,7 @@ void print_usage(ostream& os, int exit_code)
 //CONFIG FUNC
 //function prototype
 smtpConfig configSMTP();
-//function definition
-smtpConfig configSMTP()
-{
 
-	smtpConfig mysmtp {};
-	int checker;
-	checker = 1;
-	GRegex* smtpRegex;
-	GMatchInfo *match_info;
-	//regex...use posix...no \w character!
-	smtpRegex = g_regex_new("((smtp|mail)\\.[a-z.]+\\.(com|net))",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
-//while loop to check and see if smtp address entered correctly or with typo. i.e. smtp,gmail.com
-	while (checker == 1)
-	{
-        cout<<"Please enter the SMTP address. i.e. smtp.gmail.com"<<endl;
-        cin>> mysmtp.name;
-        cout<<endl;
-        cout<<"You entered: "<<mysmtp.name<<endl;
-        //cout<<g_regex_match_full(smtpRegex,mysmtp.name,-1,0,G_REGEX_MATCH_ANCHORED,&match_info, NULL)<<endl;
-        //cout<<g_match_info_is_partial_match(match_info)<<endl;
-        //cout<<g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_ANCHORED,&match_info)<<endl;
-
-        if(TRUE == g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_ANCHORED,&match_info))
-
-        //if(TRUE == g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_NOTEMPTY,NULL))
-        {
-        g_print("SMTP server address accepted.\n");
-        checker = 0;
-        }
-        else
-        {
-        g_print("That doesn't look like it will work. Let's try that again.\n");
-        }
-	}
-
-//get rest of data
-//check to make sure that the port number is either 2 or 3 digits.
-    checker = 1;
-    while(checker ==1)
-    {
-        cout<<endl<<"Please enter the SMTP port number. i.e. 465"<<endl;
-        cin >>mysmtp.port;
-        cin.get();
-        char * x {mysmtp.port};
-        int len = strlen(x);
-        //cout<<"X is "<<*x<<endl;
-        //cout<<"Len is "<<len<<endl;
-        //cout<<"The port number length is "<<len<<endl;
-        if(len == 2||
-            len == 3)
-
-        {
-            g_print("You entered a port number of acceptable length. Adding to SMTP object.\n\n");
-            checker = 0;
-        }
-        else
-        {
-            g_print("That doesn't look like it will work. Let's try that again.\n\n");
-
-        }
-    }
-    int arSize = 50;
-	cout <<"Please enter your name. i.e. John Smith"<<endl;
-	cin.getline(mysmtp.user_name,arSize);
-	cout<<endl;
-
-	cout<<"Please enter the email address you will be sending from."<<endl;
-	cin >>mysmtp.from_email_address;
-	cout<<endl;
-
-	cout<<"Please enter the username you use to access your email account."<<endl;
-	cin>>mysmtp.from_name;
-    cout<<endl;
-
-	cout<<"Pleae enter the password youuse to access your email account."<<endl;
-	cin>>mysmtp.password;
-
-	//test out statements
-	cout<<mysmtp.name<<endl;
-	cout<<mysmtp.port<<endl;
-	cout<<mysmtp.user_name<<endl;
-	cout<<mysmtp.from_email_address<<endl;
-	cout<<mysmtp.from_name<<endl;
-	cout<<mysmtp.password<<endl;
-	return mysmtp;//mysmtp;
-}
 
 int main(int argc, char* argv[])
 {
@@ -245,17 +143,113 @@ int main(int argc, char* argv[])
 
 
 	//cout statments for trouble shooting.
-	cout<<to<<endl;
+//	cout<<to<<endl;
 //	cout<<cc<<endl;
-	cout<<subject<<endl;
-	cout<<message<<endl;
-    cout<<smtpObj.port<<endl;
-
-//    cout<<dateForEmail<<endl;
+//	cout<<subject<<endl;
+//	cout<<message<<endl;
+//    cout<<smtpObj.port<<endl;
 
 	return 0;
 }
+//function definition
+smtpConfig configSMTP()
+{
 
+	smtpConfig mysmtp {};
+	int checker;
+	checker = 1;
+	GRegex* smtpRegex;
+	GMatchInfo *match_info;
+	//regex...use posix...no \w character!
+	smtpRegex = g_regex_new("((smtp|mail)\\.[a-z.]+\\.(com|net))",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
+    //while loop to check and see if smtp address entered correctly or with typo. i.e. smtp,gmail.com
+	while (checker == 1)
+	{
+        cout<<"Please enter the SMTP address. i.e. smtp.gmail.com"<<endl;
+        cin>> mysmtp.name;
+        cout<<endl;
+        cout<<"You entered: "<<mysmtp.name<<endl;
+
+        if(TRUE == g_regex_match(smtpRegex,mysmtp.name,G_REGEX_MATCH_ANCHORED,&match_info))
+        {
+            g_print("SMTP server address accepted.\n");
+            checker = 0;
+        }
+        else
+        {
+            g_print("That doesn't look like it will work. Let's try that again.\n");
+        }
+	}
+
+//get rest of data
+//check to make sure that the port number is either 2 or 3 digits.
+    checker = 1;
+    while(checker ==1)
+    {
+        cout<<endl<<"Please enter the SMTP port number. i.e. 465"<<endl;
+        cin >>mysmtp.port;
+        cin.get();
+        char * x {mysmtp.port};
+        int len = strlen(x);
+
+        if(len == 2||
+            len == 3)
+
+        {
+            g_print("You entered a port number of acceptable length. Adding to SMTP object.\n\n");
+            checker = 0;
+        }
+        else
+        {
+            g_print("That doesn't look like it will work. Let's try that again.\n\n");
+
+        }
+    }
+    int arSize = 50;
+	cout <<"Please enter your name. i.e. John Smith"<<endl;
+	cin.getline(mysmtp.user_name,arSize);
+	cout<<endl;
+
+    checker = 1;
+	GRegex* emailRegex;
+	GMatchInfo *match_info2;
+	//regex...https://www.wired.com/2008/08/four_regular_expressions_to_check_email_addresses/
+	emailRegex = g_regex_new("([a-z0-9][-a-z0-9_+.]*[a-z0-9])@([a-z0-9][-a-z0-9.]*[a-z0-9]\\.(arpa|root|aero|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)|([0-9]{1,3}\\.{3}[0-9]{1,3}))",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
+    //while loop to check and see if email address entered looks legit.
+	while (checker == 1)
+	{
+        cout<<"Please enter the email address you will be sending from."<<endl;
+        cin >>mysmtp.from_email_address;
+        cout<<endl;
+        cout<<"You entered: "<<mysmtp.from_email_address<<endl;
+
+        if(TRUE == g_regex_match(emailRegex,mysmtp.from_email_address,G_REGEX_MATCH_ANCHORED,&match_info2))
+        {
+            g_print("Your email address looks good.\n");
+            checker = 0;
+        }
+        else
+        {
+            g_print("That doesn't look like it will work. Let's try that again.\n");
+        }
+    }
+	cout<<"Please enter the username you use to access your email account."<<endl;
+	cin>>mysmtp.from_name;
+    cout<<endl;
+
+	cout<<"Pleae enter the password youuse to access your email account."<<endl;
+	cin>>mysmtp.password;
+
+	//test out statements
+//	cout<<mysmtp.name<<endl;
+//	cout<<mysmtp.port<<endl;
+//	cout<<mysmtp.user_name<<endl;
+//	cout<<mysmtp.from_email_address<<endl;
+//	cout<<mysmtp.from_name<<endl;
+//	cout<<mysmtp.password<<endl;
+	return mysmtp;//mysmtp;
+}
+//THIS PAYLOAD NEEDS TO BE REPLACED BY GMIME header and parts...
 //static const char *payload_text[] = {
 list<string> payload_text {
   "Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n",
