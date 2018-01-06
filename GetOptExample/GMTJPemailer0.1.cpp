@@ -5,6 +5,9 @@
 #include <string>
 #include <getopt.h>
 #include <cstdlib>
+#include <stdio.h>
+#include <termios.h>
+#include <fstream>
 
 using namespace std;
 const char* program_name;
@@ -65,3 +68,4 @@ program_name = argv[0];
 	cout<<to;
 	return 0;
 }
+
