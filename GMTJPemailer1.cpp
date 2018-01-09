@@ -17,6 +17,7 @@
 #include <list>
 #include <vector>
 #include <sstream>
+#include <termios.h>
 
 
 
@@ -26,7 +27,7 @@ struct smtpConfig
 	char name[50];
 	char port[5];
 	char user_name[50];
-	char password[50];
+	std::string password;
 	char from_name[50];
 	char from_email_address[60];
 };
@@ -63,7 +64,8 @@ void print_usage(ostream& os, int exit_code)
 //function prototype
 smtpConfig configSMTP();
 int mainCurl(void);
-//string smtpAddress(smtpConfig);
+string getpass(const char *prompt, bool);
+
 
 int main(int argc, char* argv[])
 {
@@ -240,14 +242,8 @@ smtpConfig configSMTP()
 
 	cout<<"Please enter the password that you use to access your email account."<<endl;
 	cin>>mysmtp.password;
+//    mysmtp.password = getpass("Please enter the password: ",true);
 
-	//test out statements
-//	cout<<mysmtp.name<<endl;
-//	cout<<mysmtp.port<<endl;
-//	cout<<mysmtp.user_name<<endl;
-//	cout<<mysmtp.from_email_address<<endl;
-//	cout<<mysmtp.from_name<<endl;
-//	cout<<mysmtp.password<<endl;
 	return mysmtp;//mysmtp;
 }
 //THIS PAYLOAD NEEDS TO BE REPLACED BY GMIME header and parts...
@@ -327,7 +323,7 @@ int mainCurl(void)
 
   curl = curl_easy_init();
   if(curl) {
-    string preformatted = "smtp://";
+    string preformatted = "smtps://";
     string smtpName = string (smtpObj.name);
     string smtpPort = smtpObj.port;
     string formatted =  preformatted+smtpName+":"+smtpPort;
@@ -337,28 +333,23 @@ int mainCurl(void)
 
 
     /* Set username and password */
-//    curl_easy_setopt(curl, CURLOPT_USERNAME, smtpObj.user_name);
-//    curl_easy_setopt(curl, CURLOPT_PASSWORD, smtpObj.password);
-    curl_easy_setopt(curl, CURLOPT_USERNAME, usrNam.c_str());
-    curl_easy_setopt(curl, CURLOPT_PASSWORD, passWord.c_str());
 
+    curl_easy_setopt(curl, CURLOPT_USERNAME, usrNam.c_str());
+//    curl_easy_setopt(curl, CURLOPT_PASSWORD, "pbugagkaliczlagw");//passWord.c_str());
+    curl_easy_setopt(curl, CURLOPT_PASSWORD,passWord.c_str());
     /* This is the URL for your mailserver. Note the use of port 587 here,
      * instead of the normal SMTP port (25). Port 587 is commonly used for
      * secure mail submission (see RFC4403), but you should use whatever
      * matches your server configuration. */
-     //smtp://user:password;options@mail.example.com
-//     cout<<*formatSMTP<<endl;
-//    curl_easy_setopt(curl, CURLOPT_URL,*formatSMTP);
+
     curl_easy_setopt(curl,CURLOPT_URL,formatted.c_str());
-//      curl_easy_setopt(curl, CURLOPT_URL,"smtp://smtp.gmail.com:465");
-//      curl_easy_setopt(curl, CURLOPT_URL,"smtp://smtp.gmail.com:587");
+
     /* In this example, we'll start with a plin text connection, and upgrade
      * to Transport Layer Security (TLS) using the STARTTLS command. Be careful
      * of using CURLUSESSL_TRY here, because if TLS upgrade fails, the transfer
      * will continue anyway - see the security discussion in the libcurl
      * tutorial for more details. */
     curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
-
 
     /* Note that this option isn't strictly required, omitting it will result
      * in libcurl sending the MAIL FROM command with empty sender data. All
@@ -375,6 +366,7 @@ int mainCurl(void)
        if(!to.empty())
         {
             recipients = curl_slist_append(recipients, to.c_str());
+            cout<<"Sending email to: "<<to<<endl;
         }
         if(!cc.empty())
         {
@@ -443,3 +435,50 @@ int mainCurl(void)
         dateForEmail = dayOfWeek + " " + dateTime;
         return dateForEmail;
     }
+////mask password input http://www.cplusplus.com/articles/E6vU7k9E/
+
+int getch() {
+    int ch;
+    struct termios t_old, t_new;
+
+    tcgetattr(STDIN_FILENO, &t_old);
+    t_new = t_old;
+    t_new.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &t_new);
+
+    ch = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
+    return ch;
+}
+string getpass(const char *prompt, bool show_asterisk=true)
+{
+  const char BACKSPACE=127;
+  const char RETURN=10;
+
+  string password;
+  unsigned char ch=0;
+
+  cout <<prompt<<endl;
+
+  while((ch=getch())!=RETURN)
+    {
+       if(ch==BACKSPACE)
+         {
+            if(password.length()!=0)
+              {
+                 if(show_asterisk)
+                 cout <<"\b \b";
+                 password.resize(password.length()-1);
+              }
+         }
+       else
+         {
+             password+=ch;
+             if(show_asterisk)
+                 cout <<'*';
+         }
+    }
+  cout <<endl;
+  return password;
+}
