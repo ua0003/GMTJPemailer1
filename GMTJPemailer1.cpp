@@ -21,13 +21,14 @@
 
 
 
+
 //structure to hold smtp information
 struct smtpConfig
 {
 	char name[50];
 	char port[5];
 	char user_name[50];
-	std::string password;
+	char password[40];
 	char from_name[50];
 	char from_email_address[60];
 };
@@ -39,7 +40,7 @@ string to;
 string cc;
 string bcc;
 string subject;
-string message;
+string msg;
 string attachment;
 static smtpConfig smtpObj;
 
@@ -64,7 +65,9 @@ void print_usage(ostream& os, int exit_code)
 //function prototype
 smtpConfig configSMTP();
 int mainCurl(void);
+int getch();
 string getpass(const char *prompt, bool);
+GMimeMessage* mainGmime(string msg);
 
 
 int main(int argc, char* argv[])
@@ -120,7 +123,7 @@ int main(int argc, char* argv[])
 			break;
 
 			case 'm':
-			message = optarg;
+			msg = optarg;
 			break;
 
 			case 'a':
@@ -143,7 +146,8 @@ int main(int argc, char* argv[])
 		}
 	}
 	while (optionCount != -1);
-
+	GMimeMessage* mimeMsg;
+    mimeMsg = mainGmime(msg);
     mainCurl();
 	//cout statments for trouble shooting.
 //	cout<<to<<endl;
@@ -209,14 +213,14 @@ smtpConfig configSMTP()
         }
     }
     int arSize = 50;
-	cout <<"Please enter your name. i.e. John Smith"<<endl;
+	cout <<"Please enter your name. i.e. 'John Smith' (Don't forget the ' '. "<<endl;
 	cin.getline(mysmtp.user_name,arSize);
 	cout<<endl;
 
     checker = 1;
 	GRegex* emailRegex;
 	GMatchInfo *match_info2;
-	//regex...https://www.wired.com/2008/08/four_regular_expressions_to_check_email_addresses/
+	//rege-x...https://www.wired.com/2008/08/four_regular_expressions_to_check_email_addresses/
 	emailRegex = g_regex_new("([a-z0-9][-a-z0-9_+.]*[a-z0-9])@([a-z0-9][-a-z0-9.]*[a-z0-9]\\.(arpa|root|aero|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)|([0-9]{1,3}\\.{3}[0-9]{1,3}))",G_REGEX_CASELESS,G_REGEX_MATCH_PARTIAL,NULL);
     //while loop to check and see if email address entered looks legit.
 	while (checker == 1)
@@ -247,13 +251,52 @@ smtpConfig configSMTP()
 	return mysmtp;//mysmtp;
 }
 //THIS PAYLOAD NEEDS TO BE REPLACED BY GMIME header and parts...
-//static const char *payload_text[] = {
-//list<string> payload_text {
-//  "Date: Sun, 7 Jan 2018 21:54:29 +1100\r\n",
-//  "To: " + to + "\r\n"//+ "\r\n",
-//  "From: " + smtpObj.from_email_address +" (Example User)\r\n",
-//  "Cc: " + cc + " (Another example User)\r\n",
-//  "Bcc:" + bcc + "blind copied user.\r\n",
+//#define FROM    "gmtjpemailer@gmail.com"
+//#define TO      "ua0003@gmail.com"
+//#define CC      "joshua.machnik@gmail.com"
+//#define FROM    smtpObj.from_email_address.c_str()
+//#define TO      "ua0003@gmail.com"
+//#define CC      "joshua.machnik@gmail.com"
+string TO = string (to.c_str());
+string FROM = string (smtpObj.from_email_address);
+string CC = string (cc.c_str());
+
+//string prePayload =
+//"Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n",
+//  "To: " + TO.c_str() +"\r\n",
+//  "From: " + FROM.c_str() + " (Example User)\r\n",
+//  "Cc: " + CC.c_str() + " (Another example User)\r\n",
+//  "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
+//  "rfcpedant.example.org>\r\n",
+//  "Subject: SMTP SSL example message\r\n",
+//  "\r\n", /* empty line to divide headers from body, see RFC5322 */
+//  "The body of the message starts here.\r\n",
+//  "\r\n",
+//  "It could be a lot of lines, could be MIME encoded, whatever.\r\n",
+//  "Check RFC5322.\r\n"
+
+
+//not quite working
+// char *payload_text[] = {
+//  "Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n",
+//  "To: " + TO.c_str() +"\r\n",
+//  "From: " + FROM.c_str() + " (Example User)\r\n",
+//  "Cc: " + CC.c_str() + " (Another example User)\r\n",
+//  "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
+//  "rfcpedant.example.org>\r\n",
+//  "Subject: SMTP SSL example message\r\n",
+//  "\r\n", /* empty line to divide headers from body, see RFC5322 */
+//  "The body of the message starts here.\r\n",
+//  "\r\n",
+//  "It could be a lot of lines, could be MIME encoded, whatever.\r\n",
+//  "Check RFC5322.\r\n",
+//  NULL
+//};
+
+//list<string> payload_text{
+//"Date: Sun, 7 Jan 2018 21:54:29 +1100\r\n",
+//  "To: ua0003@gmail.com \r\n"//+ "\r\n",
+//  "From: " + string(smtpObj.from_email_address) +" (Example User)\r\n",
 //  "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
 //  "rfcpedant.example.org>\r\n",
 //  subject,
@@ -264,54 +307,54 @@ smtpConfig configSMTP()
 //  "Check RFC5322.\r\n",
 //  "\0"
 //};
-list<string> payload_text{
-"Date: Sun, 7 Jan 2018 21:54:29 +1100\r\n",
-  "To: ua0003@gmail.com \r\n"//+ "\r\n",
-  "From: " + string(smtpObj.from_email_address) +" (Example User)\r\n",
-  "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
-  "rfcpedant.example.org>\r\n",
-  subject,
+//////////////////////////////////////////////////////////////////////////////
+/*this is the original payload text from the libcurl example*/
+#define FROM    "gmtjpemailer@gmail.com"
+#define TO      "ua0003@gmail.com"
+#define CC      "joshua.machnik@gmail.com"
+#define BCC     "theua_s@yahoo.com"
+static const char *payload_text[] = {
+  "Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n",
+  "To: " TO "\r\n",
+  "From: " FROM " (Example User)\r\n",
+  "Cc: " CC " (Another example User)\r\n",
+  "Bcc: " BCC "(Yet another User)\r\n",
+
+  "Subject: SMTP SSL example message\r\n",
   "\r\n", /* empty line to divide headers from body, see RFC5322 */
   "The body of the message starts here.\r\n",
   "\r\n",
   "It could be a lot of lines, could be MIME encoded, whatever.\r\n",
   "Check RFC5322.\r\n",
-  "\0"
+  NULL
 };
+/////////////////////////////////////////////////////////////////////////////
 struct upload_status {
   int lines_read;
 };
 
+
 static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
 {
-//  struct upload_status *upload_ctx = (struct upload_status *)userp;
-//  const char *data;
+  struct upload_status *upload_ctx = (struct upload_status *)userp;
+  const char *data;
 
   if((size == 0) || (nmemb == 0) || ((size*nmemb) < 1)) {
     return 0;
   }
-//TODO need to determine len of payload...
 
-//  data = payload_text[upload_ctx->lines_read];
-//    vector<const char *> payloadText
-//    {
-//        begin(payload_text), end(payload_text)
-//    };
-//    vector<char> playloadText(payload_text.begin(),payload_text.end());
+  data = payload_text[upload_ctx->lines_read];
 
-//    data = payloadText[upload_ctx->lines_read];
-//  data = payload_text[upload_ctx->lines_read];
-//  if(data) {
-//    size_t len = strlen(data);
-//    memcpy(ptr, data, len);
-//    upload_ctx->lines_read++;
-//
-//    return len;
-//  }
+  if(data) {
+    size_t len = strlen(data);
+    memcpy(ptr, data, len);
+    upload_ctx->lines_read++;
+
+    return len;
+  }
 
   return 0;
 }
-
 int mainCurl(void)
 {
   CURL *curl;
@@ -327,16 +370,16 @@ int mainCurl(void)
     string smtpName = string (smtpObj.name);
     string smtpPort = smtpObj.port;
     string formatted =  preformatted+smtpName+":"+smtpPort;
-    string usrNam = smtpObj.user_name;
-    string passWord = smtpObj.password;
+    char * usrNam = smtpObj.user_name;
+    char * passWord = smtpObj.password;
     string fromEmail = smtpObj.from_email_address;
 
 
     /* Set username and password */
 
-    curl_easy_setopt(curl, CURLOPT_USERNAME, usrNam.c_str());
-//    curl_easy_setopt(curl, CURLOPT_PASSWORD, "pbugagkaliczlagw");//passWord.c_str());
-    curl_easy_setopt(curl, CURLOPT_PASSWORD,passWord.c_str());
+    curl_easy_setopt(curl, CURLOPT_USERNAME, usrNam);
+
+    curl_easy_setopt(curl, CURLOPT_PASSWORD, passWord);
     /* This is the URL for your mailserver. Note the use of port 587 here,
      * instead of the normal SMTP port (25). Port 587 is commonly used for
      * secure mail submission (see RFC4403), but you should use whatever
@@ -349,6 +392,7 @@ int mainCurl(void)
      * of using CURLUSESSL_TRY here, because if TLS upgrade fails, the transfer
      * will continue anyway - see the security discussion in the libcurl
      * tutorial for more details. */
+    //maybe don't need this
     curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
 
     /* Note that this option isn't strictly required, omitting it will result
@@ -482,3 +526,78 @@ string getpass(const char *prompt, bool show_asterisk=true)
   cout <<endl;
   return password;
 }
+// GMIME content body
+GMimeMessage* mainGmime(string msg)
+    {
+        GMimeMessage *message;
+        GMimeTextPart *body;
+        GMimeDataWrapper *content;
+        GMimeStreamMem *mem;
+//        GMimeMultipart *multipart;
+        GMimePart *part;
+        GMimeStream *stream;
+
+        string text;
+        text ="Hey, How you doin'?";
+
+
+        g_mime_init();
+
+        //body = g_mime_text_part_new_with_subtype ("plain");
+        part = g_mime_part_new_with_type ("text", "plain");
+//TODO: Wrap in if statement
+        g_mime_object_set_content_type_parameter ((GMimeObject *) part, "iso-8859-1", "utf-8");
+        g_mime_part_set_content_encoding (part, GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE);
+        stream = g_mime_stream_mem_new_with_buffer (text.c_str(), strlen (text.c_str()));
+        content = g_mime_data_wrapper_new_with_stream (stream, GMIME_CONTENT_ENCODING_DEFAULT);
+        g_mime_part_set_content_object (part, content);
+        g_object_unref (content);
+
+
+//        g_mime_text_part_set_text(part, msg.c_str());
+//        g_mime_text_part_set_charset(body,"charset");
+//        g_mime_object_set_content_type_parameter ((GMimeObject *) body, "charset", "utf-8");
+//        g_mime_part_set_content_encoding (body, GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE);
+
+        g_mime_message_set_mime_part (message, (GMimeObject *) body);
+
+        g_object_unref (body);
+        return message;
+//        /* create the multipart/alternative part */
+//        multipart = g_mime_multipart_new_with_subtype ("alternative");
+//
+//        /* create the text/plain part and add it to the multipart/alternative */
+//        mem = g_mime_stream_mem_new_with_buffer (text.c_str(), strlen (text.c_str()));
+//
+//        content = g_mime_data_wrapper_new_with_stream (mem, GMIME_CONTENT_ENCODING_DEFAULT);
+//        g_object_unref (mem);
+//
+//        part = g_mime_part_new_with_type ("text", "plain");
+//        /* if the charset of the text isn't US-ASCII, you will need to set the charset... utf-8, iso-8859-1, etc */
+//        g_mime_object_set_content_type_parameter ((GMimeObject *) part, "charset", "utf-8");
+//        g_mime_part_set_content_encoding (part, GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE);
+//        g_mime_part_set_content_object (part, content);
+//        g_object_unref (content);
+//
+//        g_mime_multipart_add (multipart, (GMimeObject *) part);
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /* create the text/html part and add it to the multipart/alternative */
+//        mem = g_mime_stream_mem_new_with_buffer (text, strlen (html));
+//        content = g_mime_data_wrapper_new_with_stream ((GMimeStream *) mem, GMIME_CONTENT_ENCODING_DEFAULT);
+//        g_object_unref (mem);
+//
+//        part = g_mime_part_new_with_type ("text", "html");
+//        /* if the charset of the html isn't US-ASCII, you will need to set the charset... utf-8, iso-8859-1, etc */
+//        g_mime_object_set_content_type_parameter ((GMimeObject *) part, "charset", "utf-8");
+//        g_mime_part_set_content_encoding (part, GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE);
+//        g_mime_part_set_content_object (part, content);
+//        g_object_unref (content);
+//
+//        g_mime_multipart_add (multipart, (GMimeObject *) part);
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        /* create the message and add the multipart/alternative */
+//        message = g_mime_message_new (TRUE);
+//        g_mime_message_set_mime_part (message, (GMimeObject *) multipart);
+//        g_object_unref (multipart);
+    }
+
