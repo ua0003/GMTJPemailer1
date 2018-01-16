@@ -64,10 +64,10 @@ void print_usage(ostream& os, int exit_code)
 //CONFIG FUNC
 //function prototype
 smtpConfig configSMTP();
-int mainCurl(void);
+int mainCurl(GMimePart*);
 int getch();
 string getpass(const char *prompt, bool);
-GMimeMessage* mainGmime(string msg);
+GMimePart* mainGmime(string msg);
 
 
 int main(int argc, char* argv[])
@@ -146,9 +146,9 @@ int main(int argc, char* argv[])
 		}
 	}
 	while (optionCount != -1);
-	GMimeMessage* mimeMsg;
+	GMimePart* mimeMsg;
     mimeMsg = mainGmime(msg);
-    mainCurl();
+    mainCurl(mimeMsg);
 	//cout statments for trouble shooting.
 //	cout<<to<<endl;
 //	cout<<cc<<endl;
@@ -355,7 +355,7 @@ static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
 
   return 0;
 }
-int mainCurl(void)
+int mainCurl(GMimePart mimeMsg)
 {
   CURL *curl;
   CURLcode res = CURLE_OK;
@@ -527,7 +527,7 @@ string getpass(const char *prompt, bool show_asterisk=true)
   return password;
 }
 // GMIME content body
-GMimeMessage* mainGmime(string msg)
+GMimePart* mainGmime(string msg)
     {
         GMimeMessage *message;
         GMimeTextPart *body;
@@ -560,10 +560,10 @@ GMimeMessage* mainGmime(string msg)
 //        g_mime_object_set_content_type_parameter ((GMimeObject *) body, "charset", "utf-8");
 //        g_mime_part_set_content_encoding (body, GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE);
 
-        g_mime_message_set_mime_part (message, (GMimeObject *) body);
-
-        g_object_unref (body);
-        return message;
+//        g_mime_message_set_mime_part (message, (GMimeObject *) body);
+//
+//        g_object_unref (body);
+        return part;
 //        /* create the multipart/alternative part */
 //        multipart = g_mime_multipart_new_with_subtype ("alternative");
 //
