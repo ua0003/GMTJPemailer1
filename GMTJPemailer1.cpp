@@ -532,7 +532,7 @@ GMimeMessage* mainGmime(string msg)
         GMimeMessage *message;
         GMimeTextPart *body;
         GMimeDataWrapper *content;
-        GMimeStreamMem *mem;
+//        GMimeStreamMem *mem;
 //        GMimeMultipart *multipart;
         GMimePart *part;
         GMimeStream *stream;
@@ -550,7 +550,8 @@ GMimeMessage* mainGmime(string msg)
         g_mime_part_set_content_encoding (part, GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE);
         stream = g_mime_stream_mem_new_with_buffer (text.c_str(), strlen (text.c_str()));
         content = g_mime_data_wrapper_new_with_stream (stream, GMIME_CONTENT_ENCODING_DEFAULT);
-        g_mime_part_set_content_object (part, content);
+        g_mime_part_set_content(part,content);
+//        g_mime_part_set_content_object (part, content);
         g_object_unref (content);
 
 
