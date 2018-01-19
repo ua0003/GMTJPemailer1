@@ -64,7 +64,8 @@ void print_usage(ostream& os, int exit_code)
 //CONFIG FUNC
 //function prototype
 smtpConfig configSMTP();
-int mainCurl(GMimePart*);
+//int mainCurl(_GMimePart*);
+int mainCurl(void);
 int getch();
 string getpass(const char *prompt, bool);
 GMimePart* mainGmime(string msg);
@@ -148,7 +149,8 @@ int main(int argc, char* argv[])
 	while (optionCount != -1);
 	GMimePart* mimeMsg;
     mimeMsg = mainGmime(msg);
-    mainCurl(mimeMsg);
+//    mainCurl(mimeMsg
+    mainCurl();
 	//cout statments for trouble shooting.
 //	cout<<to<<endl;
 //	cout<<cc<<endl;
@@ -245,7 +247,23 @@ smtpConfig configSMTP()
     cout<<endl;
 
 	cout<<"Please enter the password that you use to access your email account."<<endl;
-	cin>>mysmtp.password;
+//    char a[40]
+    string a="";
+    char c;
+    for(int i=0;i<1000;i++)
+        {
+         c=getch();
+         if(c=='\r')
+            break;
+         std::cout<<"*";
+            a+=c;
+        }
+    char *updatePass= new char[a.size()+1];
+    updatePass[a.size()]=0;
+    memcpy(updatePass,a.c_str(),a.size());
+    strcpy(mysmtp.password,updatePass);
+    delete updatePass;
+//	cin>>mysmtp.password;
 //    mysmtp.password = getpass("Please enter the password: ",true);
 
 	return mysmtp;//mysmtp;
@@ -313,7 +331,7 @@ string CC = string (cc.c_str());
 #define TO      "ua0003@gmail.com"
 #define CC      "joshua.machnik@gmail.com"
 #define BCC     "theua_s@yahoo.com"
-static const char *payload_text[] = {
+ const char *payload_text[] = {
   "Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n",
   "To: " TO "\r\n",
   "From: " FROM " (Example User)\r\n",
@@ -328,6 +346,7 @@ static const char *payload_text[] = {
   "Check RFC5322.\r\n",
   NULL
 };
+
 /////////////////////////////////////////////////////////////////////////////
 struct upload_status {
   int lines_read;
@@ -355,7 +374,8 @@ static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
 
   return 0;
 }
-int mainCurl(GMimePart mimeMsg)
+//int mainCurl(GMimePart mimeMsg)
+int mainCurl()
 {
   CURL *curl;
   CURLcode res = CURLE_OK;
@@ -370,16 +390,15 @@ int mainCurl(GMimePart mimeMsg)
     string smtpName = string (smtpObj.name);
     string smtpPort = smtpObj.port;
     string formatted =  preformatted+smtpName+":"+smtpPort;
-    char * usrNam = smtpObj.user_name;
-    char * passWord = smtpObj.password;
+//    char * usrNam = smtpObj.user_name;
+//    char * passWord = smtpObj.password;
     string fromEmail = smtpObj.from_email_address;
 
 
     /* Set username and password */
+    curl_easy_setopt(curl, CURLOPT_USERNAME, smtpObj.user_name);
 
-    curl_easy_setopt(curl, CURLOPT_USERNAME, usrNam);
-
-    curl_easy_setopt(curl, CURLOPT_PASSWORD, passWord);
+    curl_easy_setopt(curl, CURLOPT_PASSWORD, smtpObj.password);
     /* This is the URL for your mailserver. Note the use of port 587 here,
      * instead of the normal SMTP port (25). Port 587 is commonly used for
      * secure mail submission (see RFC4403), but you should use whatever
