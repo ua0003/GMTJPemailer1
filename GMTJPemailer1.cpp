@@ -45,6 +45,7 @@ string cc;
 string bcc;
 string subject;
 string msg;
+string internationalCoding;
 string attachment;
 static smtpConfig smtpObj;
 
@@ -60,7 +61,8 @@ void print_usage(ostream& os, int exit_code)
 		<< " -b --bcc Requires an argument, email address to be blind copied." <<endl
 		<< " -s --subject Requires an argument, email subject. (enter in '' )" <<endl
 		<< " -m --message Requires an argument, email text//body. (enter in '')" <<endl
-		<< " -a --attachment Requires an argument, file path to attachment." <<endl
+		<< " -i --international Requires an argument, choose a UTF-8 character set. " <<endl
+//		<< "   TODO ADD LIST OF POSSIBLE CHARACTHER SETS       "
 		<< " -f --configure Used to setup initially. Will request SMTP server name, port number, your name, email address, user name, and password." <<endl;
 
 		exit (exit_code);
@@ -250,24 +252,9 @@ smtpConfig configSMTP()
 	cin>>mysmtp.from_name;
     cout<<endl;
 
-	cout<<"Please enter the password that you use to access your email account."<<endl;
-//    char a[40]
-//    string a="";
-//    char c;
-//    for(int i=0;i<40;i++)
-//        {
-//         c=getch();
-//         if(c=='\n')
-//            break;
-//         cout<<"*";
-//            a+=c;
-//        }
-//    char *updatePass= new char[a.size()+1];
-//    updatePass[a.size()]=0;
-//    memcpy(updatePass,a.c_str(),a.size());
-//    strcpy(mysmtp.password,updatePass);
-//    delete updatePass;
-	cin>>mysmtp.password;
+	string prompt ="Please enter the password that you use to access your email account.\n";
+
+	mysmtp.password = getpass(prompt.c_str());
 //    mysmtp.password = getpass("Please enter the password: ",true);
 
 	return mysmtp;//mysmtp;
@@ -528,7 +515,7 @@ string getpass(const char *prompt, bool show_asterisk=true)
 
   cout <<prompt<<endl;
 
-  while((ch=getch())!=RETURN)
+  while((ch=getch())!='\n')//RETURN)
     {
        if(ch==BACKSPACE)
          {
@@ -545,8 +532,8 @@ string getpass(const char *prompt, bool show_asterisk=true)
              if(show_asterisk)
                  cout <<'*';
          }
-    }
-  cout <<endl;
+
+
   return password;
 }
 // GMIME content body
