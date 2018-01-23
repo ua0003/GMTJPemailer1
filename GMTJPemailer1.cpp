@@ -2,6 +2,7 @@
 
 //include statements
 #include <iostream>
+#include <stdio.h>
 #include <gmime/gmime.h>
 #include <glib-2.0/glib.h>
 #include <curl/curl.h>
@@ -28,8 +29,11 @@ struct smtpConfig
 	char name[50];
 	char port[5];
 	char user_name[50];
-	char password[40];
-	char from_name[50];
+//	std::string user_name;
+	std::string password;
+//	char password[40];
+//	char from_name[50];
+	std::string from_name;
 	char from_email_address[60];
 };
 
@@ -75,7 +79,7 @@ int main(int argc, char* argv[])
 {
 	int optionCount;
 	//setup short options and whether they take arguments
-	const char* const short_options= "hvt:c:b:s:m:a:f";
+	const char* const short_options= "hvt:c:b:s:m:i:f";
 	//setup long options for verbose
 	const struct option long_options[] =
 	{
@@ -86,7 +90,7 @@ int main(int argc, char* argv[])
 		{ "bcc", 2, NULL, 'b'},
 		{ "subject", 1, NULL, 's'},
 		{ "message", 1, NULL, 'm'},
-		{ "attachment", 2, NULL, 'a'},
+		{ "international",1,NULL, 'i'},
 		{ "configure", 0, 0, 'f'},
 
 		{ NULL, 0, NULL, 0 }
@@ -127,8 +131,8 @@ int main(int argc, char* argv[])
 			msg = optarg;
 			break;
 
-			case 'a':
-			attachment = optarg;
+			case 'i':
+			internationalCoding = optarg;
 			break;
 
 			case 'f':
@@ -248,22 +252,22 @@ smtpConfig configSMTP()
 
 	cout<<"Please enter the password that you use to access your email account."<<endl;
 //    char a[40]
-    string a="";
-    char c;
-    for(int i=0;i<1000;i++)
-        {
-         c=getch();
-         if(c=='\r')
-            break;
-         std::cout<<"*";
-            a+=c;
-        }
-    char *updatePass= new char[a.size()+1];
-    updatePass[a.size()]=0;
-    memcpy(updatePass,a.c_str(),a.size());
-    strcpy(mysmtp.password,updatePass);
-    delete updatePass;
-//	cin>>mysmtp.password;
+//    string a="";
+//    char c;
+//    for(int i=0;i<40;i++)
+//        {
+//         c=getch();
+//         if(c=='\n')
+//            break;
+//         cout<<"*";
+//            a+=c;
+//        }
+//    char *updatePass= new char[a.size()+1];
+//    updatePass[a.size()]=0;
+//    memcpy(updatePass,a.c_str(),a.size());
+//    strcpy(mysmtp.password,updatePass);
+//    delete updatePass;
+	cin>>mysmtp.password;
 //    mysmtp.password = getpass("Please enter the password: ",true);
 
 	return mysmtp;//mysmtp;
@@ -332,11 +336,11 @@ string CC = string (cc.c_str());
 #define CC      "joshua.machnik@gmail.com"
 #define BCC     "theua_s@yahoo.com"
  const char *payload_text[] = {
-  "Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n",
+//  "Date: Sat, 20 Jan 2018 11:54:29 +1100\r\n",
   "To: " TO "\r\n",
   "From: " FROM " (Example User)\r\n",
   "Cc: " CC " (Another example User)\r\n",
-  "Bcc: " BCC "(Yet another User)\r\n",
+  "bcc: " BCC "(Yet another User)\r\n",
 
   "Subject: SMTP SSL example message\r\n",
   "\r\n", /* empty line to divide headers from body, see RFC5322 */
@@ -396,9 +400,9 @@ int mainCurl()
 
 
     /* Set username and password */
-    curl_easy_setopt(curl, CURLOPT_USERNAME, smtpObj.user_name);
+    curl_easy_setopt(curl, CURLOPT_USERNAME, smtpObj.from_name.c_str());
 
-    curl_easy_setopt(curl, CURLOPT_PASSWORD, smtpObj.password);
+    curl_easy_setopt(curl, CURLOPT_PASSWORD, smtpObj.password.c_str());
     /* This is the URL for your mailserver. Note the use of port 587 here,
      * instead of the normal SMTP port (25). Port 587 is commonly used for
      * secure mail submission (see RFC4403), but you should use whatever
