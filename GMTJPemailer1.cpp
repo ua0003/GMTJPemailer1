@@ -1,6 +1,6 @@
-//A command line program used for sending emails.
+///A command line program used for sending emails.
 
-//include statements
+///include statements
 #include <iostream>
 #include <stdio.h>
 #include <gmime/gmime.h>
@@ -19,11 +19,11 @@
 #include <vector>
 #include <sstream>
 #include <termios.h>
+#include "cereal/archives/binary.hpp"
+#include <sstream>
 
 
-
-
-//structure to hold smtp information
+///structure to hold smtp information
 struct smtpConfig
 {
 	char name[50];
@@ -36,6 +36,13 @@ struct smtpConfig
 	std::string from_name;
 	char from_email_address[60];
 };
+//  // This method lets cereal know which data members to serialize
+//  template<class Archive>
+//  void serialize(Archive & archive)
+//  {
+//    archive( smtpConfig::name, smtpConfig::port, smtpConfig::user_name, smtpConfig::from_email_address, smtpConfig::password ); // serialize things by passing them to the archive
+////    archive(smtpConfig);
+//  };
 
 //variables
 using namespace std;
@@ -67,8 +74,8 @@ void print_usage(ostream& os, int exit_code)
 
 		exit (exit_code);
 	}
-//CONFIG FUNC
-//function prototype
+
+///function prototypes
 smtpConfig configSMTP();
 //int mainCurl(_GMimePart*);
 int mainCurl(void);
@@ -76,6 +83,7 @@ int getch();
 string getpass(const char *prompt, bool);
 GMimePart* mainGmime(string msg);
 
+///MAIN
 
 int main(int argc, char* argv[])
 {
@@ -155,7 +163,24 @@ int main(int argc, char* argv[])
 	while (optionCount != -1);
 	GMimePart* mimeMsg;
     mimeMsg = mainGmime(msg);
-//    mainCurl(mimeMsg
+///Check for serial data
+    if(smtpObj != NULL)
+        stringstream ss;
+        {
+            cereal::BinaryOutputArchive ar(ss);
+            ar(cereal::binary_data(smtpObj,sizeof(smtpObj)));
+        }
+    else if(smtpObj == NULL)
+        {
+            cereal::BinaryInputArchive ar(ss);
+            ar( cereal:: binary_data( smtpObj, sizeof(smtpConfig)));
+        }
+    else
+        {
+        configSMTP();
+        }
+///    mainCurl(mimeMsg
+
     mainCurl();
 	//cout statments for trouble shooting.
 //	cout<<to<<endl;
@@ -365,7 +390,7 @@ static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
 
   return 0;
 }
-//int mainCurl(GMimePart mimeMsg)
+///int mainCurl(GMimePart mimeMsg)
 int mainCurl()
 {
   CURL *curl;
@@ -463,7 +488,7 @@ int mainCurl()
 }
     string dateString()
     {
-        //get date for email
+        ///get date for email
         // https://gist.github.com/CaptainJH/11208867
         string dateTime;
         auto now = std::chrono::system_clock::now();
@@ -489,8 +514,8 @@ int mainCurl()
         dateForEmail = dayOfWeek + " " + dateTime;
         return dateForEmail;
     }
-////mask password input http://www.cplusplus.com/articles/E6vU7k9E/
-
+///mask password
+/////https://stackoverflow.com/questions/6856635/hide-password-input-on-terminal
 int getch() {
     int ch;
     struct termios t_old, t_new;
@@ -533,7 +558,7 @@ string getpass(const char *prompt, bool show_asterisk=true)
                  cout <<'*';
          }
 
-
+    }
   return password;
 }
 // GMIME content body
@@ -611,4 +636,5 @@ GMimePart* mainGmime(string msg)
 //        g_mime_message_set_mime_part (message, (GMimeObject *) multipart);
 //        g_object_unref (multipart);
     }
+
 
