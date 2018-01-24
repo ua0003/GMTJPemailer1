@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
 	GMimePart* mimeMsg;
     mimeMsg = mainGmime(msg);
 ///Check for serial data
-    if(smtpObj != NULL)
+    if(smtpObj <> NULL)
         stringstream ss;
         {
             cereal::BinaryOutputArchive ar(ss);
