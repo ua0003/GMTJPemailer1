@@ -12,6 +12,10 @@
 #include <getopt.h>  //used for arg parsing options
 #include <cstdlib>
 #include <fstream> //used for binary serialization
+#include <cereal/cereal.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include <chrono>
 #include <ctime>
 #include <iomanip>
@@ -19,8 +23,7 @@
 #include <vector>
 #include <sstream>
 #include <termios.h>
-#include "cereal/archives/binary.hpp"
-#include <sstream>
+#include <memory>
 
 
 ///structure to hold smtp information
@@ -35,6 +38,12 @@ struct smtpConfig
 //	char from_name[50];
 	std::string from_name;
 	char from_email_address[60];
+
+    template <class Archive>
+    void serialize( Archive & ar )
+        {
+            ar( name, port, user_name, password, from_name, from_email_address  );
+        }
 };
 //  // This method lets cereal know which data members to serialize
 //  template<class Archive>
@@ -83,6 +92,16 @@ int getch();
 string getpass(const char *prompt, bool);
 GMimePart* mainGmime(string msg);
 
+template<class Archive>
+void save(Archive & archive, smtpConfig const & m)
+    {
+        archive( m.name, m.port, m.user_name, m.from_email_address, m.from_name, m.password );
+    }
+template<class Archive>
+void load(Archive & archive, smtpConfig & m)
+    {
+        archive( m.name, m.port, m.user_name, m.from_email_address, m.from_name, m.password);
+    }
 ///MAIN
 
 int main(int argc, char* argv[])
@@ -164,16 +183,26 @@ int main(int argc, char* argv[])
 	GMimePart* mimeMsg;
     mimeMsg = mainGmime(msg);
 ///Check for serial data
-    if(smtpObj <> NULL)
-        stringstream ss;
+
+/*need to use external serialize function instead...see split/load
+http://uscilab.github.io/cereal/serialization_functions.html
+
+*/
+    if(smtpObj.password.length()>0)
+
         {
-            cereal::BinaryOutputArchive ar(ss);
-            ar(cereal::binary_data(smtpObj,sizeof(smtpObj)));
+            std::ofstream os("GMTJPemailer.config", std::ios::binary);
+            cereal::PortableBinaryOutputArchive archive( os );
+            archive(smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address  );
         }
-    else if(smtpObj == NULL)
+
+    if(smtpObj.password.length()<1)
         {
-            cereal::BinaryInputArchive ar(ss);
-            ar( cereal:: binary_data( smtpObj, sizeof(smtpConfig)));
+            ifstream is("GMTJPemailer.config", std::ios::binary);
+            cereal::PortableBinaryInputArchive archive(is);
+
+            archive(  smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address );
+
         }
     else
         {
