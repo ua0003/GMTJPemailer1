@@ -198,15 +198,17 @@ http://uscilab.github.io/cereal/serialization_functions.html
 
     if(smtpObj.password.length()<1)
         {
+            try
+                {
             ifstream is("GMTJPemailer.config", std::ios::binary);
             cereal::PortableBinaryInputArchive archive(is);
 
             archive(  smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address );
-
-        }
-    else
-        {
-        configSMTP();
+                }
+            catch(const std::exception&)
+                {
+                    configSMTP();
+                };
         }
 ///    mainCurl(mimeMsg
 
