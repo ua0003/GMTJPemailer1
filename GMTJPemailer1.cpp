@@ -87,7 +87,7 @@ void print_usage(ostream& os, int exit_code)
 ///function prototypes
 smtpConfig configSMTP();
 //int mainCurl(_GMimePart*);
-int mainCurl(void);
+int mainCurl(smtpConfig);
 int getch();
 string getpass(const char *prompt, bool);
 GMimePart* mainGmime(string msg);
@@ -184,16 +184,14 @@ int main(int argc, char* argv[])
     mimeMsg = mainGmime(msg);
 ///Check for serial data
 
-/*need to use external serialize function instead...see split/load
-http://uscilab.github.io/cereal/serialization_functions.html
-
-*/
     if(smtpObj.password.length()>0)
 
         {
+            cout<<"smtpObj pass greater than 0"<<endl;
             std::ofstream os("GMTJPemailer.config", std::ios::binary);
             cereal::PortableBinaryOutputArchive archive( os );
             archive(smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address  );
+            cout<<"Serializing smtp config data complete."<<endl;
         }
 
     if(smtpObj.password.length()<1)
@@ -202,24 +200,33 @@ http://uscilab.github.io/cereal/serialization_functions.html
                 {
             ifstream is("GMTJPemailer.config", std::ios::binary);
             cereal::PortableBinaryInputArchive archive(is);
-
             archive(  smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address );
+            cout<<"SMTP config data retreived."<<endl;
                 }
             catch(const std::exception&)
+//            cout<<"Something went wrong!"<<endl;
                 {
-                    configSMTP();
+                    cout<<"Something went wrong...let's gather some information."<<endl;
+                    smtpObj = configSMTP();
                 };
         }
-///    mainCurl(mimeMsg
-
-    mainCurl();
-	//cout statments for trouble shooting.
-//	cout<<to<<endl;
-//	cout<<cc<<endl;
-//	cout<<subject<<endl;
-//	cout<<message<<endl;
-//    cout<<smtpObj.port<<endl;
-
+///    mainCurl
+//check if there is a to address before proceeding.
+    if(strlen(to.c_str())<1)
+        {
+            cout<<"SMTP configured"<<endl;
+            return 0;
+        }
+    else
+        {
+            mainCurl(smtpObj);
+        //cout statments for trouble shooting.
+    //	cout<<to<<endl;
+    //	cout<<cc<<endl;
+    //	cout<<subject<<endl;
+    //	cout<<message<<endl;
+    //    cout<<smtpObj.port<<endl;
+        }
 	return 0;
 }
 //function definition
@@ -422,7 +429,7 @@ static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
   return 0;
 }
 ///int mainCurl(GMimePart mimeMsg)
-int mainCurl()
+int mainCurl(smtpConfig)
 {
   CURL *curl;
   CURLcode res = CURLE_OK;
@@ -473,16 +480,16 @@ int mainCurl()
     /* Add two recipients, in this particular case they correspond to the
      * To: and Cc: addressees in the header, but they could be any kind of
      * recipient. */
-       if(!to.empty())
+       if(strlen(to.c_str())>0)
         {
             recipients = curl_slist_append(recipients, to.c_str());
             cout<<"Sending email to: "<<to<<endl;
         }
-        if(!cc.empty())
+        if(strlen(cc.c_str())>0)
         {
             recipients = curl_slist_append(recipients, cc.c_str());
         }
-        if(!bcc.empty())
+        if(strlen(bcc.c_str())>0)
         {
             recipients = curl_slist_append(recipients, bcc.c_str());
         }
