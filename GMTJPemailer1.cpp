@@ -380,8 +380,10 @@ string CC = string (cc.c_str());
 #define TO      "ua0003@gmail.com"
 #define CC      "joshua.machnik@gmail.com"
 #define BCC     "theua_s@yahoo.com"
+ GDateTime *forGmime = g_date_time_new_now_local ();
+ char* forlibcurl = g_mime_utils_header_format_date(forGmime);
  const char *payload_text[] = {
-//  "Date: Sat, 20 Jan 2018 11:54:29 +1100\r\n",
+    forlibcurl,
   "To: " TO "\r\n",
   "From: " FROM " (Example User)\r\n",
   "Cc: " CC " (Another example User)\r\n",
