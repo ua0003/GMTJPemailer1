@@ -323,12 +323,7 @@ smtpConfig configSMTP()
 	return mysmtp;//mysmtp;
 }
 //THIS PAYLOAD NEEDS TO BE REPLACED BY GMIME header and parts...
-//#define FROM    "gmtjpemailer@gmail.com"
-//#define TO      "ua0003@gmail.com"
-//#define CC      "joshua.machnik@gmail.com"
-//#define FROM    smtpObj.from_email_address.c_str()
-//#define TO      "ua0003@gmail.com"
-//#define CC      "joshua.machnik@gmail.com"
+
 string TO = string (to.c_str());
 string FROM = string (smtpObj.from_email_address);
 string CC = string (cc.c_str());
@@ -627,52 +622,8 @@ GMimePart* mainGmime(string msg)
 //        g_mime_part_set_content_object (part, content);
         g_object_unref (content);
 
-
-//        g_mime_text_part_set_text(part, msg.c_str());
-//        g_mime_text_part_set_charset(body,"charset");
-//        g_mime_object_set_content_type_parameter ((GMimeObject *) body, "charset", "utf-8");
-//        g_mime_part_set_content_encoding (body, GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE);
-
-//        g_mime_message_set_mime_part (message, (GMimeObject *) body);
-//
-//        g_object_unref (body);
         return part;
-//        /* create the multipart/alternative part */
-//        multipart = g_mime_multipart_new_with_subtype ("alternative");
-//
-//        /* create the text/plain part and add it to the multipart/alternative */
-//        mem = g_mime_stream_mem_new_with_buffer (text.c_str(), strlen (text.c_str()));
-//
-//        content = g_mime_data_wrapper_new_with_stream (mem, GMIME_CONTENT_ENCODING_DEFAULT);
-//        g_object_unref (mem);
-//
-//        part = g_mime_part_new_with_type ("text", "plain");
-//        /* if the charset of the text isn't US-ASCII, you will need to set the charset... utf-8, iso-8859-1, etc */
-//        g_mime_object_set_content_type_parameter ((GMimeObject *) part, "charset", "utf-8");
-//        g_mime_part_set_content_encoding (part, GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE);
-//        g_mime_part_set_content_object (part, content);
-//        g_object_unref (content);
-//
-//        g_mime_multipart_add (multipart, (GMimeObject *) part);
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /* create the text/html part and add it to the multipart/alternative */
-//        mem = g_mime_stream_mem_new_with_buffer (text, strlen (html));
-//        content = g_mime_data_wrapper_new_with_stream ((GMimeStream *) mem, GMIME_CONTENT_ENCODING_DEFAULT);
-//        g_object_unref (mem);
-//
-//        part = g_mime_part_new_with_type ("text", "html");
-//        /* if the charset of the html isn't US-ASCII, you will need to set the charset... utf-8, iso-8859-1, etc */
-//        g_mime_object_set_content_type_parameter ((GMimeObject *) part, "charset", "utf-8");
-//        g_mime_part_set_content_encoding (part, GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE);
-//        g_mime_part_set_content_object (part, content);
-//        g_object_unref (content);
-//
-//        g_mime_multipart_add (multipart, (GMimeObject *) part);
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        /* create the message and add the multipart/alternative */
-//        message = g_mime_message_new (TRUE);
-//        g_mime_message_set_mime_part (message, (GMimeObject *) multipart);
-//        g_object_unref (multipart);
+
     }
 
 
