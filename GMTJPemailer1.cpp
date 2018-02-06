@@ -9,6 +9,7 @@
 
 #include <string>
 #include <cstring>
+
 #include <getopt.h>  //used for arg parsing options
 #include <cstdlib>
 #include <fstream> //used for binary serialization
@@ -376,28 +377,95 @@ string CC = string (cc.c_str());
 //};
 //////////////////////////////////////////////////////////////////////////////
 /*this is the original payload text from the libcurl example*/
-#define FROM    "gmtjpemailer@gmail.com"
-#define TO      "ua0003@gmail.com"
-#define CC      "joshua.machnik@gmail.com"
-#define BCC     "theua_s@yahoo.com"
+//#define FROM    "gmtjpemailer@gmail.com"
+//#define TO      "ua0003@gmail.com"
+//#define CC      "joshua.machnik@gmail.com"
+//#define BCC     "theua_s@yahoo.com"
+//Use GMime to format the GLib Date for the email.
  GDateTime *forGmime = g_date_time_new_now_local ();
  char* forlibcurl = g_mime_utils_header_format_date(forGmime);
- const char *payload_text[] = {
-    forlibcurl,
-  "To: " TO "\r\n",
-  "From: " FROM " (Example User)\r\n",
-  "Cc: " CC " (Another example User)\r\n",
-  "bcc: " BCC "(Yet another User)\r\n",
 
-  "Subject: SMTP SSL example message\r\n",
-  "\r\n", /* empty line to divide headers from body, see RFC5322 */
-  "The body of the message starts here.\r\n",
-  "\r\n",
-  "It could be a lot of lines, could be MIME encoded, whatever.\r\n",
-  "Check RFC5322.\r\n",
-  NULL
-};
+ ////////////////////////////////////////////
+ ///PUT VECTOR HERE!!!!
+ ////////////////////////////////////////////
+//  const char *payload_text[] = {
+//    forlibcurl,
+//  "To: " TO "\r\n",
+//  "From: " FROM " (Example User)\r\n",
+//  "Cc: " CC " (Another example User)\r\n",
+//  "bcc: " BCC "(Yet another User)\r\n",
+//
+//  "Subject: SMTP SSL example message\r\n",
+//  "\r\n", /* empty line to divide headers from body, see RFC5322 */
+//  "The body of the message starts here.\r\n",
+//  "\r\n",
+//  "It could be a lot of lines, could be MIME encoded, whatever.\r\n",
+//  "Check RFC5322.\r\n",
+//  NULL
+//};
 
+string preto =  "To: ";
+string prefrom ="From: ";
+string precc = "CC: ";
+//string prebcc = "BCC: ";
+string presub = "Subject: ";
+
+string temTo = preto+TO+"\n";
+string temFrom = prefrom+FROM+"\n";
+string temCC = precc+CC+"\n";
+//string tembcc = prebcc+bcc+"\n";
+string temSub = presub+subject+"\n";
+
+     const char payload_template[] =
+        "Date: %s\r\n"
+        "To: %s\r\n"
+        "From: %s\r\n"
+        "Subject: %s\r\n"
+        "\r\n"
+        "%s\r\n\r\n";
+
+        // TODO You must make this unique for every message sent.
+        // Generate it according to spec.
+//        char message_id[] = "126cfbe1fd5413ba4d604c50a74bfc80471cec367b1604ade4d081f31c3f4f34";
+
+        size_t payload_text_len = strlen(payload_template) +
+                                  strlen(forlibcurl) + strlen(subject.c_str()) +
+                                  strlen(TO.c_str()) + strlen(FROM.c_str()) +
+                                  strlen(msg.c_str()) + 1;
+
+        void* payload_text = /*(char*)*/ malloc(payload_text_len);
+
+//        char* memset(payload_text, 0, payload_text_len);
+//         char* payload_text;
+        memset(payload_text,0,payload_text_len);
+//        int snprintCheck = snprintf((char*)payload_text, payload_text_len,payload_template,const_cast<const char*>(forlibcurl),TO.c_str()
+//        ,FROM.c_str(),subject.c_str(),msg.c_str());
+        int sprintCheck = sprintf((char*)payload_text,payload_template,const_cast<const char*>(forlibcurl),TO.c_str()
+        ,FROM.c_str(),subject.c_str(),msg.c_str());
+//        char* payload_text = payload_txt;
+//        free(payload_txt);
+//stringstream ss;
+//        const char* payload_template<<ss << forlibcurl<<TO<<FROM<<subject<<msg;
+// char *payload_text[] = {
+//    forlibcurl,
+//  "To:  \n",
+//  "From:   (Example User)\n",
+//  "Cc:   (Another example User)\n",
+//
+//  "Subject: SMTP SSL example message\n",
+//  "\n", /* empty line to divide headers from body, see RFC5322 */
+//  "The body of the message starts here.\n",
+//  "\n",
+//  "It could be a lot of lines, could be MIME encoded, whatever.\n",
+//  "Check RFC5322.\n",
+//  NULL
+//};
+
+
+//const char payload_text[1] = temTo.c_str();
+//*payload_text[2] = temFrom.c_str():
+//*payload_text[3] = temCC.c_str();
+//*payload_text[4] = temSub.c_Str();
 /////////////////////////////////////////////////////////////////////////////
 struct upload_status {
   int lines_read;
@@ -413,7 +481,7 @@ static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
     return 0;
   }
 
-  data = payload_text[upload_ctx->lines_read];
+  data = (const char*)payload_text[upload_ctx->lines_read];
 
   if(data) {
     size_t len = strlen(data);
