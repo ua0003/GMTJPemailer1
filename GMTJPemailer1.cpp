@@ -358,8 +358,6 @@ smtpConfig configSMTP()
 	return mysmtp;
 }
 
-
-
 ///int mainCurl
 int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
 {
@@ -377,37 +375,15 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
     string fromEmail = smtpObj.from_email_address;
 
 
-    /* Set username and password */
+    // Set username and password
     curl_easy_setopt(curl, CURLOPT_USERNAME, smtpObj.from_name.c_str());
-
     curl_easy_setopt(curl, CURLOPT_PASSWORD, smtpObj.password.c_str());
-    /* This is the URL for your mailserver. Note the use of port 587 here,
-     * instead of the normal SMTP port (25). Port 587 is commonly used for
-     * secure mail submission (see RFC4403), but you should use whatever
-     * matches your server configuration. */
-
+    //setup smtp structure upgrading to SSL
     curl_easy_setopt(curl,CURLOPT_URL,formatted.c_str());
-
-    /* In this example, we'll start with a plin text connection, and upgrade
-     * to Transport Layer Security (TLS) using the STARTTLS command. Be careful
-     * of using CURLUSESSL_TRY here, because if TLS upgrade fails, the transfer
-     * will continue anyway - see the security discussion in the libcurl
-     * tutorial for more details. */
-    //maybe don't need this
     curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
-
-    /* Note that this option isn't strictly required, omitting it will result
-     * in libcurl sending the MAIL FROM command with empty sender data. All
-     * autoresponses should have an empty reverse-path, and should be directed
-     * to the address in the reverse-path which triggered them. Otherwise,
-     * they could cause an endless loop. See RFC 5321 Section 4.5.5 for more
-     * details.
-     */
     curl_easy_setopt(curl, CURLOPT_MAIL_FROM, fromEmail.c_str());
 
-    /* Add two recipients, in this particular case they correspond to the
-     * To: and Cc: addressees in the header, but they could be any kind of
-     * recipient. */
+    //Add recipients
        if(strlen(to.c_str())>0)
         {
             recipients = curl_slist_append(recipients, to.c_str());
@@ -424,12 +400,6 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
             cout<<"BCC'ing email to: "<<bcc<<endl;
         }
     curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
-
-    /* We're using a callback function to specify the payload (the headers and
-     * body of the message). You could just use the CURLOPT_READDATA option to
-     * specify a FILE pointer to read from. */
-//    curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
-//    curl_easy_setopt(curl, CURLOPT_READDATA, &upload_ctx);
     curl_easy_setopt(curl, CURLOPT_READDATA, tmpf);
     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 
@@ -440,7 +410,7 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
 
     /* Send the message */
     std::cout<<"About to send the email!"<<endl;
-//    std::cout<<*payload
+
     res = curl_easy_perform(curl);
 
     /* Check for errors */
