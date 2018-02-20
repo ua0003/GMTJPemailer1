@@ -27,6 +27,7 @@
 #include <termios.h>
 #include <memory>
 #include <typeinfo> //used for troubleshooting
+#include <algorithm>
 
 ///structure to hold smtp information
 struct smtpConfig
@@ -206,6 +207,10 @@ int main(int argc, char* argv[])
         }
        ///template for email
        //setup to from cc
+if(strlen(to.c_str())>0)
+        {
+            to.replace(to.find(" "),sizeof(">, <")-1,">, <");
+        }
 string TO = string (to.c_str());
 string FROM = string (smtpObj.from_email_address);
 string CC = string (cc.c_str());
@@ -242,8 +247,6 @@ size_t payload_text_len;
         fputs(const_cast<const char*>(payload_text),tmpf);
         rewind(tmpf);
 
-
-
 ///    mainCurl
 //check if there is a to address before proceeding.
     cout<<"Payload text length is: "<<payload_text_len<<endl;
@@ -261,10 +264,8 @@ size_t payload_text_len;
 	return 0;
 
 }
-//function definition
-//struct upload_status {
-//  int lines_read;
-//};
+///Function Definitions
+
 smtpConfig configSMTP()
 {
 
@@ -391,24 +392,23 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
         }
         if(strlen(cc.c_str())>0)
         {
+            cc.replace(cc.find(" "),sizeof(">, <")-1,">, <");
             recipients = curl_slist_append(recipients, cc.c_str());
             cout<<"CC'ing email to: "<<cc<<endl;
         }
         if(strlen(bcc.c_str())>0)
         {
+            bcc.replace(bcc.find(" "),sizeof(">, <")-1,">, <");
             recipients = curl_slist_append(recipients, bcc.c_str());
             cout<<"BCC'ing email to: "<<bcc<<endl;
         }
     curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
     curl_easy_setopt(curl, CURLOPT_READDATA, tmpf);
     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-
-    /* Since the traffic will be encrypted, it is very useful to turn on debug
-     * information within libcurl to see what is happening during the transfer.
-     */
+    //turn on debug information for lib curl...
     curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
-    /* Send the message */
+    // Send the message
     std::cout<<"About to send the email!"<<endl;
 
     res = curl_easy_perform(curl);
