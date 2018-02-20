@@ -3,6 +3,7 @@
 ///include statements
 #include <iostream>
 #include <stdio.h>
+#include <cstdio>
 #include <gmime/gmime.h>
 #include <glib-2.0/glib.h>
 #include <curl/curl.h>
@@ -25,7 +26,7 @@
 #include <sstream>
 #include <termios.h>
 #include <memory>
-
+#include <typeinfo> //used for troubleshooting
 
 ///structure to hold smtp information
 struct smtpConfig
@@ -33,10 +34,7 @@ struct smtpConfig
 	char name[50];
 	char port[5];
 	char user_name[50];
-//	std::string user_name;
 	std::string password;
-//	char password[40];
-//	char from_name[50];
 	std::string from_name;
 	char from_email_address[60];
 
@@ -46,13 +44,6 @@ struct smtpConfig
             ar( name, port, user_name, password, from_name, from_email_address  );
         }
 };
-//  // This method lets cereal know which data members to serialize
-//  template<class Archive>
-//  void serialize(Archive & archive)
-//  {
-//    archive( smtpConfig::name, smtpConfig::port, smtpConfig::user_name, smtpConfig::from_email_address, smtpConfig::password ); // serialize things by passing them to the archive
-////    archive(smtpConfig);
-//  };
 
 //variables
 using namespace std;
@@ -88,10 +79,12 @@ void print_usage(ostream& os, int exit_code)
 ///function prototypes
 smtpConfig configSMTP();
 //int mainCurl(_GMimePart*);
-int mainCurl(smtpConfig);
+int mainCurl(smtpConfig,FILE* tmpf, size_t payload_text_len);
 int getch();
 string getpass(const char *prompt, bool);
 GMimePart* mainGmime(string msg);
+static size_t payload_source(char *ptr, size_t size, size_t nmemb, const char *userp);
+
 
 template<class Archive>
 void save(Archive & archive, smtpConfig const & m)
@@ -181,8 +174,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	while (optionCount != -1);
-	GMimePart* mimeMsg;
-    mimeMsg = mainGmime(msg);
+
 ///Check for serial data
 
     if(smtpObj.password.length()>0)
@@ -211,8 +203,86 @@ int main(int argc, char* argv[])
                     smtpObj = configSMTP();
                 };
         }
+       ///template for email
+       //setup to from cc
+string TO = string (to.c_str());
+string FROM = string (smtpObj.from_email_address);
+string CC = string (cc.c_str());
+
+//use GMime to format the date.
+ GDateTime *forGmime = g_date_time_new_now_local ();
+ char* forlibcurl = g_mime_utils_header_format_date(forGmime);
+
+
+
+     const char payload_template[] =
+        "Date: %s\r\n"
+        "To: %s\r\n"
+        "From: %s\r\n"
+        "Subject: %s\r\n"
+        "\r\n"
+        "%s\r\n\r\n";
+//declare variable for payload text length used for curl
+size_t payload_text_len;
+         payload_text_len = strlen(payload_template) +
+                                  strlen(forlibcurl) + strlen(subject.c_str()) +
+                                  strlen(TO.c_str()) + strlen(FROM.c_str()) +
+                                  strlen(msg.c_str()) + 1;
+
+//        void* payload_text = /*(char*)*/ malloc(payload_text_len);
+        char* payload_text = (char*) malloc(payload_text_len);
+//        char * payload_text = new char[payload_text_len];
+//        char* memset(payload_text, 0, payload_text_len);
+//         char* payload_text;
+//        memset(payload_text,0,payload_text_len);
+//        int snprintCheck = snprintf((char*)payload_text, payload_text_len,payload_template,const_cast<const char*>(forlibcurl),TO.c_str()
+//        ,FROM.c_str(),subject.c_str(),msg.c_str());
+        int sprintCheck = snprintf((char*)payload_text,payload_text_len,payload_template,const_cast<const char*>(forlibcurl),TO.c_str()
+        ,FROM.c_str(),subject.c_str(),msg.c_str());
+        FILE *tmpf = tmpfile();
+        fputs(const_cast<const char*>(payload_text),tmpf);
+        rewind(tmpf);
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+//struct upload_status upload_ctx;
+
+  g_print("Setting the memory needed.");
+//  memset(payload_text,0,payload_text_len);
+//  if((size == 0) || (nmemb == 0) || ((size*nmemb) < 1)) {
+//    return 0;
+//  }
+
+
+//    delete[]payload_text;
+
+//  if(payload_text)
+//    {
+//        if (payload_text_len > nmemb * size)
+//            {
+//                payload_text_len = 0;
+//                g_print("Your message is too big!");
+//                return payload_text_len;
+//            }
+//        if (payload_text_len)
+//            {
+////                memcpy(ptr, payload_text, payload_text_len);
+////                upload_ctx->lines_read++;
+//                g_print("Data structure loaded.");
+//                return payload_text_len;
+//            }
+//        return payload_text_len;
+//    }
+char* ptr[payload_text_len] =  {payload_text};
+size_t sized = 1;
+cout<<"Payload text is:"<<endl;
+cout<<*ptr<<endl;
+//payload_source(*ptr,sized,payload_text_len,(const char*)payload_text);
 ///    mainCurl
 //check if there is a to address before proceeding.
+    cout<<"Payload text length is: "<<payload_text_len<<endl;
     if(strlen(to.c_str())<1)
         {
             cout<<"SMTP configured"<<endl;
@@ -220,17 +290,17 @@ int main(int argc, char* argv[])
         }
     else
         {
-            mainCurl(smtpObj);
-        //cout statments for trouble shooting.
-    //	cout<<to<<endl;
-    //	cout<<cc<<endl;
-    //	cout<<subject<<endl;
-    //	cout<<message<<endl;
-    //    cout<<smtpObj.port<<endl;
+            mainCurl(smtpObj,tmpf,payload_text_len);
+
         }
+    free(payload_text);
 	return 0;
+
 }
 //function definition
+struct upload_status {
+  int lines_read;
+};
 smtpConfig configSMTP()
 {
 
@@ -323,185 +393,50 @@ smtpConfig configSMTP()
 
 	return mysmtp;//mysmtp;
 }
-//THIS PAYLOAD NEEDS TO BE REPLACED BY GMIME header and parts...
 
-string TO = string (to.c_str());
-string FROM = string (smtpObj.from_email_address);
-string CC = string (cc.c_str());
-
-//string prePayload =
-//"Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n",
-//  "To: " + TO.c_str() +"\r\n",
-//  "From: " + FROM.c_str() + " (Example User)\r\n",
-//  "Cc: " + CC.c_str() + " (Another example User)\r\n",
-//  "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
-//  "rfcpedant.example.org>\r\n",
-//  "Subject: SMTP SSL example message\r\n",
-//  "\r\n", /* empty line to divide headers from body, see RFC5322 */
-//  "The body of the message starts here.\r\n",
-//  "\r\n",
-//  "It could be a lot of lines, could be MIME encoded, whatever.\r\n",
-//  "Check RFC5322.\r\n"
-
-
-//not quite working
-// char *payload_text[] = {
-//  "Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n",
-//  "To: " + TO.c_str() +"\r\n",
-//  "From: " + FROM.c_str() + " (Example User)\r\n",
-//  "Cc: " + CC.c_str() + " (Another example User)\r\n",
-//  "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
-//  "rfcpedant.example.org>\r\n",
-//  "Subject: SMTP SSL example message\r\n",
-//  "\r\n", /* empty line to divide headers from body, see RFC5322 */
-//  "The body of the message starts here.\r\n",
-//  "\r\n",
-//  "It could be a lot of lines, could be MIME encoded, whatever.\r\n",
-//  "Check RFC5322.\r\n",
-//  NULL
-//};
-
-//list<string> payload_text{
-//"Date: Sun, 7 Jan 2018 21:54:29 +1100\r\n",
-//  "To: ua0003@gmail.com \r\n"//+ "\r\n",
-//  "From: " + string(smtpObj.from_email_address) +" (Example User)\r\n",
-//  "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
-//  "rfcpedant.example.org>\r\n",
-//  subject,
-//  "\r\n", /* empty line to divide headers from body, see RFC5322 */
-//  "The body of the message starts here.\r\n",
-//  "\r\n",
-//  "It could be a lot of lines, could be MIME encoded, whatever.\r\n",
-//  "Check RFC5322.\r\n",
-//  "\0"
-//};
-//////////////////////////////////////////////////////////////////////////////
-/*this is the original payload text from the libcurl example*/
-//#define FROM    "gmtjpemailer@gmail.com"
-//#define TO      "ua0003@gmail.com"
-//#define CC      "joshua.machnik@gmail.com"
-//#define BCC     "theua_s@yahoo.com"
-//Use GMime to format the GLib Date for the email.
- GDateTime *forGmime = g_date_time_new_now_local ();
- char* forlibcurl = g_mime_utils_header_format_date(forGmime);
-
- ////////////////////////////////////////////
- ///PUT VECTOR HERE!!!!
- ////////////////////////////////////////////
-//  const char *payload_text[] = {
-//    forlibcurl,
-//  "To: " TO "\r\n",
-//  "From: " FROM " (Example User)\r\n",
-//  "Cc: " CC " (Another example User)\r\n",
-//  "bcc: " BCC "(Yet another User)\r\n",
+//static size_t payload_source(char *ptr, size_t sized, size_t nmemb, const char *userp)
+//{
+//  struct upload_status *upload_ctx = (struct upload_status *)userp;
+//  const char *data;
 //
-//  "Subject: SMTP SSL example message\r\n",
-//  "\r\n", /* empty line to divide headers from body, see RFC5322 */
-//  "The body of the message starts here.\r\n",
-//  "\r\n",
-//  "It could be a lot of lines, could be MIME encoded, whatever.\r\n",
-//  "Check RFC5322.\r\n",
-//  NULL
-//};
-
-string preto =  "To: ";
-string prefrom ="From: ";
-string precc = "CC: ";
-//string prebcc = "BCC: ";
-string presub = "Subject: ";
-
-string temTo = preto+TO+"\n";
-string temFrom = prefrom+FROM+"\n";
-string temCC = precc+CC+"\n";
-//string tembcc = prebcc+bcc+"\n";
-string temSub = presub+subject+"\n";
-
-     const char payload_template[] =
-        "Date: %s\r\n"
-        "To: %s\r\n"
-        "From: %s\r\n"
-        "Subject: %s\r\n"
-        "\r\n"
-        "%s\r\n\r\n";
-
-        // TODO You must make this unique for every message sent.
-        // Generate it according to spec.
-//        char message_id[] = "126cfbe1fd5413ba4d604c50a74bfc80471cec367b1604ade4d081f31c3f4f34";
-
-        size_t payload_text_len = strlen(payload_template) +
-                                  strlen(forlibcurl) + strlen(subject.c_str()) +
-                                  strlen(TO.c_str()) + strlen(FROM.c_str()) +
-                                  strlen(msg.c_str()) + 1;
-
-        void* payload_text = /*(char*)*/ malloc(payload_text_len);
-
-//        char* memset(payload_text, 0, payload_text_len);
-//         char* payload_text;
-        memset(payload_text,0,payload_text_len);
-//        int snprintCheck = snprintf((char*)payload_text, payload_text_len,payload_template,const_cast<const char*>(forlibcurl),TO.c_str()
-//        ,FROM.c_str(),subject.c_str(),msg.c_str());
-        int sprintCheck = sprintf((char*)payload_text,payload_template,const_cast<const char*>(forlibcurl),TO.c_str()
-        ,FROM.c_str(),subject.c_str(),msg.c_str());
-//        char* payload_text = payload_txt;
-//        free(payload_txt);
-//stringstream ss;
-//        const char* payload_template<<ss << forlibcurl<<TO<<FROM<<subject<<msg;
-// char *payload_text[] = {
-//    forlibcurl,
-//  "To:  \n",
-//  "From:   (Example User)\n",
-//  "Cc:   (Another example User)\n",
+//  if((sized == 0) || (nmemb == 0) || ((sized*nmemb) < 1))
+//    {
+//        return 0;
+//    }
+//    cout<<nmemb<<endl;
 //
-//  "Subject: SMTP SSL example message\n",
-//  "\n", /* empty line to divide headers from body, see RFC5322 */
-//  "The body of the message starts here.\n",
-//  "\n",
-//  "It could be a lot of lines, could be MIME encoded, whatever.\n",
-//  "Check RFC5322.\n",
-//  NULL
-//};
+////    cout<<typeid(userp).name<<endl;
+//    cout<<sized<<endl;
+//    cout<<*ptr<<endl;
+////  data = (const char*)&userp[upload_ctx->lines_read];
+////    data = **userp[upload_ctx->lines_read];
+//  if(data) {
+//    size_t len = strlen(data);
+//    memcpy(ptr, data, len);
+//    upload_ctx->lines_read++;
+//
+//    return len;
+//  }
+//
+//  return 0;
+//}
 
-
-//const char payload_text[1] = temTo.c_str();
-//*payload_text[2] = temFrom.c_str():
-//*payload_text[3] = temCC.c_str();
-//*payload_text[4] = temSub.c_Str();
-/////////////////////////////////////////////////////////////////////////////
-struct upload_status {
-  int lines_read;
-};
-
-
-static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
+///int mainCurl
+int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
 {
-  struct upload_status *upload_ctx = (struct upload_status *)userp;
-  const char *data;
-
-  if((size == 0) || (nmemb == 0) || ((size*nmemb) < 1)) {
-    return 0;
-  }
-
-  data = (const char*)payload_text[upload_ctx->lines_read];
-
-  if(data) {
-    size_t len = strlen(data);
-    memcpy(ptr, data, len);
-    upload_ctx->lines_read++;
-
-    return len;
-  }
-
-  return 0;
-}
-///int mainCurl(GMimePart mimeMsg)
-int mainCurl(smtpConfig)
-{
+//
+//void *ptr;
+//size_t size;
+//size_t nmemb;
+//void *userp;
+//  struct upload_status *upload_ctx = (struct upload_status *)payload_text;
+//  const char *data = (const char*)payload_text[upload_ctx->lines_read];
   CURL *curl;
   CURLcode res = CURLE_OK;
   struct curl_slist *recipients = NULL;
-  struct upload_status upload_ctx;
+//  struct upload_status upload_ctx;
 
-  upload_ctx.lines_read = 0;
+//  upload_ctx->lines_read = 0;
 
   curl = curl_easy_init();
   if(curl) {
@@ -553,18 +488,21 @@ int mainCurl(smtpConfig)
         if(strlen(cc.c_str())>0)
         {
             recipients = curl_slist_append(recipients, cc.c_str());
+            cout<<"CC'ing email to: "<<cc<<endl;
         }
         if(strlen(bcc.c_str())>0)
         {
             recipients = curl_slist_append(recipients, bcc.c_str());
+            cout<<"BCC'ing email to: "<<bcc<<endl;
         }
     curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
 
     /* We're using a callback function to specify the payload (the headers and
      * body of the message). You could just use the CURLOPT_READDATA option to
      * specify a FILE pointer to read from. */
-    curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
-    curl_easy_setopt(curl, CURLOPT_READDATA, &upload_ctx);
+//    curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
+//    curl_easy_setopt(curl, CURLOPT_READDATA, &upload_ctx);
+    curl_easy_setopt(curl, CURLOPT_READDATA, tmpf);
     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 
     /* Since the traffic will be encrypted, it is very useful to turn on debug
@@ -573,6 +511,8 @@ int mainCurl(smtpConfig)
     curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
     /* Send the message */
+    std::cout<<"About to send the email!"<<endl;
+//    std::cout<<*payload
     res = curl_easy_perform(curl);
 
     /* Check for errors */
@@ -589,34 +529,7 @@ int mainCurl(smtpConfig)
 
   return (int)res;
 }
-    string dateString()
-    {
-        ///get date for email
-        // https://gist.github.com/CaptainJH/11208867
-        string dateTime;
-        auto now = std::chrono::system_clock::now();
-        auto in_time_t = std::chrono::system_clock::to_time_t(now);
-        stringstream ss;
-        ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M:%S");
-        dateTime = ss.str();
-        //http://www.cplusplus.com/forum/beginner/41434/
-        string dayOfWeek;
-        const string DAY[]={"Sun","Mon","Tue",
-        "Wed","Thu","Fri","Sat"};
 
-            time_t rawtime;
-            tm * timeinfo;
-            time(&rawtime);
-            timeinfo=localtime(&rawtime);
-
-        int wday=timeinfo->tm_wday;
-        cout << "Today is: " << DAY[wday] << "\n" << endl;
-        dayOfWeek = DAY[wday];
-        //combine day of week with date and time
-        string dateForEmail;
-        dateForEmail = dayOfWeek + " " + dateTime;
-        return dateForEmail;
-    }
 ///mask password
 /////https://stackoverflow.com/questions/6856635/hide-password-input-on-terminal
 int getch() {
@@ -633,67 +546,3 @@ int getch() {
     tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
     return ch;
 }
-string getpass(const char *prompt, bool show_asterisk=true)
-{
-  const char BACKSPACE=127;
-  const char RETURN=10;
-
-  string password;
-  unsigned char ch=0;
-
-  cout <<prompt<<endl;
-
-  while((ch=getch())!='\n')//RETURN)
-    {
-       if(ch==BACKSPACE)
-         {
-            if(password.length()!=0)
-              {
-                 if(show_asterisk)
-                 cout <<"\b \b";
-                 password.resize(password.length()-1);
-              }
-         }
-       else
-         {
-             password+=ch;
-             if(show_asterisk)
-                 cout <<'*';
-         }
-
-    }
-  return password;
-}
-// GMIME content body
-GMimePart* mainGmime(string msg)
-    {
-        GMimeMessage *message;
-        GMimeTextPart *body;
-        GMimeDataWrapper *content;
-//        GMimeStreamMem *mem;
-//        GMimeMultipart *multipart;
-        GMimePart *part;
-        GMimeStream *stream;
-
-        string text;
-        text ="Hey, How you doin'?";
-
-
-        g_mime_init();
-
-        //body = g_mime_text_part_new_with_subtype ("plain");
-        part = g_mime_part_new_with_type ("text", "plain");
-//TODO: Wrap in if statement
-        g_mime_object_set_content_type_parameter ((GMimeObject *) part, "iso-8859-1", "utf-8");
-        g_mime_part_set_content_encoding (part, GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE);
-        stream = g_mime_stream_mem_new_with_buffer (text.c_str(), strlen (text.c_str()));
-        content = g_mime_data_wrapper_new_with_stream (stream, GMIME_CONTENT_ENCODING_DEFAULT);
-        g_mime_part_set_content(part,content);
-//        g_mime_part_set_content_object (part, content);
-        g_object_unref (content);
-
-        return part;
-
-    }
-
-
