@@ -83,7 +83,7 @@ int mainCurl(smtpConfig,FILE* tmpf, size_t payload_text_len);
 int getch();
 string getpass(const char *prompt, bool);
 GMimePart* mainGmime(string msg);
-static size_t payload_source(char *ptr, size_t size, size_t nmemb, const char *userp);
+//static size_t payload_source(char *ptr, size_t size, size_t nmemb, const char *userp);
 
 
 template<class Archive>
@@ -136,6 +136,7 @@ int main(int argc, char* argv[])
 
 			case 't':
 			to = optarg;
+
 			break;
 
 			case 'c':
@@ -229,61 +230,24 @@ size_t payload_text_len;
                                   strlen(TO.c_str()) + strlen(FROM.c_str()) +
                                   strlen(msg.c_str()) + 1;
 
-//        void* payload_text = /*(char*)*/ malloc(payload_text_len);
+        //setaside memory for payload_text.
         char* payload_text = (char*) malloc(payload_text_len);
-//        char * payload_text = new char[payload_text_len];
-//        char* memset(payload_text, 0, payload_text_len);
-//         char* payload_text;
-//        memset(payload_text,0,payload_text_len);
-//        int snprintCheck = snprintf((char*)payload_text, payload_text_len,payload_template,const_cast<const char*>(forlibcurl),TO.c_str()
-//        ,FROM.c_str(),subject.c_str(),msg.c_str());
+
         int sprintCheck = snprintf((char*)payload_text,payload_text_len,payload_template,const_cast<const char*>(forlibcurl),TO.c_str()
         ,FROM.c_str(),subject.c_str(),msg.c_str());
+
+        cout<<sprintCheck<<endl;
+        //put payload text in temp file to be read by curl main.
         FILE *tmpf = tmpfile();
         fputs(const_cast<const char*>(payload_text),tmpf);
         rewind(tmpf);
 
-/////////////////////////////////////////////////////////////////////////////
 
 
-
-//struct upload_status upload_ctx;
-
-  g_print("Setting the memory needed.");
-//  memset(payload_text,0,payload_text_len);
-//  if((size == 0) || (nmemb == 0) || ((size*nmemb) < 1)) {
-//    return 0;
-//  }
-
-
-//    delete[]payload_text;
-
-//  if(payload_text)
-//    {
-//        if (payload_text_len > nmemb * size)
-//            {
-//                payload_text_len = 0;
-//                g_print("Your message is too big!");
-//                return payload_text_len;
-//            }
-//        if (payload_text_len)
-//            {
-////                memcpy(ptr, payload_text, payload_text_len);
-////                upload_ctx->lines_read++;
-//                g_print("Data structure loaded.");
-//                return payload_text_len;
-//            }
-//        return payload_text_len;
-//    }
-char* ptr[payload_text_len] =  {payload_text};
-size_t sized = 1;
-cout<<"Payload text is:"<<endl;
-cout<<*ptr<<endl;
-//payload_source(*ptr,sized,payload_text_len,(const char*)payload_text);
 ///    mainCurl
 //check if there is a to address before proceeding.
     cout<<"Payload text length is: "<<payload_text_len<<endl;
-    if(strlen(to.c_str())<1)
+    if(strlen(to.c_str()) && strlen(bcc.c_str())<1)
         {
             cout<<"SMTP configured"<<endl;
             return 0;
@@ -298,9 +262,9 @@ cout<<*ptr<<endl;
 
 }
 //function definition
-struct upload_status {
-  int lines_read;
-};
+//struct upload_status {
+//  int lines_read;
+//};
 smtpConfig configSMTP()
 {
 
@@ -389,54 +353,20 @@ smtpConfig configSMTP()
 	string prompt ="Please enter the password that you use to access your email account.\n";
 
 	mysmtp.password = getpass(prompt.c_str());
-//    mysmtp.password = getpass("Please enter the password: ",true);
 
-	return mysmtp;//mysmtp;
+
+	return mysmtp;
 }
 
-//static size_t payload_source(char *ptr, size_t sized, size_t nmemb, const char *userp)
-//{
-//  struct upload_status *upload_ctx = (struct upload_status *)userp;
-//  const char *data;
-//
-//  if((sized == 0) || (nmemb == 0) || ((sized*nmemb) < 1))
-//    {
-//        return 0;
-//    }
-//    cout<<nmemb<<endl;
-//
-////    cout<<typeid(userp).name<<endl;
-//    cout<<sized<<endl;
-//    cout<<*ptr<<endl;
-////  data = (const char*)&userp[upload_ctx->lines_read];
-////    data = **userp[upload_ctx->lines_read];
-//  if(data) {
-//    size_t len = strlen(data);
-//    memcpy(ptr, data, len);
-//    upload_ctx->lines_read++;
-//
-//    return len;
-//  }
-//
-//  return 0;
-//}
+
 
 ///int mainCurl
 int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
 {
-//
-//void *ptr;
-//size_t size;
-//size_t nmemb;
-//void *userp;
-//  struct upload_status *upload_ctx = (struct upload_status *)payload_text;
-//  const char *data = (const char*)payload_text[upload_ctx->lines_read];
+
   CURL *curl;
   CURLcode res = CURLE_OK;
   struct curl_slist *recipients = NULL;
-//  struct upload_status upload_ctx;
-
-//  upload_ctx->lines_read = 0;
 
   curl = curl_easy_init();
   if(curl) {
@@ -444,8 +374,6 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
     string smtpName = string (smtpObj.name);
     string smtpPort = smtpObj.port;
     string formatted =  preformatted+smtpName+":"+smtpPort;
-//    char * usrNam = smtpObj.user_name;
-//    char * passWord = smtpObj.password;
     string fromEmail = smtpObj.from_email_address;
 
 
