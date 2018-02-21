@@ -83,16 +83,16 @@ GMimePart* mainGmime(string msg);
 
 
 //Setup Cereal so it know what data to serialize.
-template<class Archive>
-void save(Archive & archive, smtpConfig const & m)
-    {
-        archive( m.name, m.port, m.user_name, m.from_email_address, m.from_name, m.password );
-    }
-template<class Archive>
-void load(Archive & archive, smtpConfig & m)
-    {
-        archive( m.name, m.port, m.user_name, m.from_email_address, m.from_name, m.password);
-    }
+//template<class Archive>
+//void save(Archive & archive, smtpConfig &m)
+//    {
+//        archive( m.name, m.port, m.user_name, m.from_email_address, m.from_name, m.password );
+//    }
+//template<class Archive>
+//void load(Archive & archive, smtpConfig & m)
+//    {
+//        archive( m.name, m.port, m.user_name, m.from_email_address, m.from_name, m.password);
+//    }
 ///MAIN
 
 int main(int argc, char* argv[])
@@ -176,8 +176,9 @@ if(smtpObj.password.length()>0)
     {
         cout<<"Saving SMTP data..."<<endl;
         std::ofstream os("GMTJPemailer.config", std::ios::binary);
-        cereal::PortableBinaryOutputArchive archive( os );
-        archive(smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address  );
+        cereal::PortableBinaryOutputArchive oarchive( os );
+        oarchive( smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.from_email_address, smtpObj.from_name, smtpObj.password );
+//        archive(smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address  );
         cout<<"Serializing STMP config data complete."<<endl;
         return 0;
     }
@@ -186,10 +187,11 @@ else
     {
         try
             {
-        ifstream is("GMTJPemailer.config", std::ios::binary);
-        cereal::PortableBinaryInputArchive archive(is);
-        archive(  smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address );
-        cout<<"SMTP config data retrieved."<<endl;
+                ifstream is("GMTJPemailer.config", std::ios::binary);
+                cereal::PortableBinaryInputArchive iarchive(is);
+                iarchive(smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.from_email_address, smtpObj.from_name, smtpObj.password);
+//                archive(  smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address );
+                cout<<"SMTP config data retrieved."<<endl;
             }
         catch(const std::exception&)
             {
