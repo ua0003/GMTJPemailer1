@@ -179,80 +179,77 @@ int main(int argc, char* argv[])
 
 ///Check for serial data
 
-    if(smtpObj.password.length()>0)
+if(smtpObj.password.length()>0)
 
-        {
-            cout<<"smtpObj pass greater than 0"<<endl;
-            std::ofstream os("GMTJPemailer.config", std::ios::binary);
-            cereal::PortableBinaryOutputArchive archive( os );
-            archive(smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address  );
-            cout<<"Serializing smtp config data complete."<<endl;
-        }
+    {
+        cout<<"Saving SMTP data..."<<endl;
+        std::ofstream os("GMTJPemailer.config", std::ios::binary);
+        cereal::PortableBinaryOutputArchive archive( os );
+        archive(smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address  );
+        cout<<"Serializing STMP config data complete."<<endl;
+        return 0;
+    }
 
-    if(smtpObj.password.length()<1)
-        {
-            try
-                {
-            ifstream is("GMTJPemailer.config", std::ios::binary);
-            cereal::PortableBinaryInputArchive archive(is);
-            archive(  smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address );
-            cout<<"SMTP config data retreived."<<endl;
-                }
-            catch(const std::exception&)
-//            cout<<"Something went wrong!"<<endl;
-                {
-                    cout<<"Something went wrong...let's gather some information."<<endl;
-                    smtpObj = configSMTP();
-                };
-        }
+else if(smtpObj.password.length()<1)
+    {
+        try
+            {
+        ifstream is("GMTJPemailer.config", std::ios::binary);
+        cereal::PortableBinaryInputArchive archive(is);
+        archive(  smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address );
+        cout<<"SMTP config data retrieved."<<endl;
+            }
+        catch(const std::exception&)
+            {
+                cout<<"SMTP data has not been found...let's gather some information."<<endl;
+                smtpObj = configSMTP();
+            };
+    }
        ///template for email
        //setup to from cc
-if(strlen(to.c_str())>0)
-        {
-            to.replace(to.find(" "),sizeof(">, <")-1,">, <");
-        }
+
 string TO = string (to.c_str());
 string FROM = string (smtpObj.from_email_address);
 string CC = string (cc.c_str());
 
 //use GMime to format the date.
- GDateTime *forGmime = g_date_time_new_now_local ();
- char* forlibcurl = g_mime_utils_header_format_date(forGmime);
+GDateTime *forGmime = g_date_time_new_now_local ();
+char* forlibcurl = g_mime_utils_header_format_date(forGmime);
 
 
 
-     const char payload_template[] =
-        "Date: %s\r\n"
-        "To: %s\r\n"
-        "From: %s\r\n"
-        "Subject: %s\r\n"
-        "\r\n"
-        "%s\r\n\r\n";
+ const char payload_template[] =
+    "Date: %s\r\n"
+    "To: %s\r\n"
+    "From: %s\r\n"
+    "Subject: %s\r\n"
+    "\r\n"
+    "%s\r\n\r\n";
 //declare variable for payload text length used for curl
 size_t payload_text_len;
-         payload_text_len = strlen(payload_template) +
-                                  strlen(forlibcurl) + strlen(subject.c_str()) +
-                                  strlen(TO.c_str()) + strlen(FROM.c_str()) +
-                                  strlen(msg.c_str()) + 1;
+ payload_text_len = strlen(payload_template) +
+                          strlen(forlibcurl) + strlen(subject.c_str()) +
+                          strlen(TO.c_str()) + strlen(FROM.c_str()) +
+                          strlen(msg.c_str()) + 1;
 
-        //setaside memory for payload_text.
-        char* payload_text = (char*) malloc(payload_text_len);
+//setaside memory for payload_text.
+char* payload_text = (char*) malloc(payload_text_len);
 
-        int sprintCheck = snprintf((char*)payload_text,payload_text_len,payload_template,const_cast<const char*>(forlibcurl),TO.c_str()
-        ,FROM.c_str(),subject.c_str(),msg.c_str());
+int sprintCheck = snprintf((char*)payload_text,payload_text_len,payload_template,const_cast<const char*>(forlibcurl),TO.c_str()
+,FROM.c_str(),subject.c_str(),msg.c_str());
 
-        cout<<sprintCheck<<endl;
-        //put payload text in temp file to be read by curl main.
-        FILE *tmpf = tmpfile();
-        fputs(const_cast<const char*>(payload_text),tmpf);
-        rewind(tmpf);
+cout<<"Preparing email file..."<<endl;
+//put payload text in temp file to be read by curl main.
+FILE *tmpf = tmpfile();
+fputs(const_cast<const char*>(payload_text),tmpf);
+rewind(tmpf);
 
 ///    mainCurl
 //check if there is a to address before proceeding.
     cout<<"Payload text length is: "<<payload_text_len<<endl;
-    if(strlen(to.c_str()) && strlen(bcc.c_str())<1)
+    if(strlen(to.c_str()) /*&& strlen(bcc.c_str())*/<1)
         {
-            cout<<"SMTP configured"<<endl;
+            cout<<"SMTP configured but no email addresses have been detected in the TO or BCC field."<<endl;
             return 0;
         }
     else
@@ -385,20 +382,31 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
     curl_easy_setopt(curl, CURLOPT_MAIL_FROM, fromEmail.c_str());
 
     //Add recipients
+        int found;
        if(strlen(to.c_str())>0)
         {
-            recipients = curl_slist_append(recipients, to.c_str());
-            cout<<"Sending email to: "<<to<<endl;
+            found=to.find(" ");
+                if (found!=std::string::npos)
+                {
+                    to.replace(to.find(" "),1,">, <");
+                    recipients = curl_slist_append(recipients, to.c_str());
+                    cout<<"Sending email to: "<<to<<endl;
+                }
+                else
+                {
+                    recipients = curl_slist_append(recipients, to.c_str());
+                    cout<<"Sending email to: "<<to<<endl;
+                }
         }
         if(strlen(cc.c_str())>0)
         {
-            cc.replace(cc.find(" "),sizeof(">, <")-1,">, <");
+//            cc.replace(cc.find(" "),sizeof(">, <")-1,">, <");
             recipients = curl_slist_append(recipients, cc.c_str());
             cout<<"CC'ing email to: "<<cc<<endl;
         }
         if(strlen(bcc.c_str())>0)
         {
-            bcc.replace(bcc.find(" "),sizeof(">, <")-1,">, <");
+//            bcc.replace(bcc.find(" "),sizeof(">, <")-1,">, <");
             recipients = curl_slist_append(recipients, bcc.c_str());
             cout<<"BCC'ing email to: "<<bcc<<endl;
         }
@@ -430,7 +438,8 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
 
 ///mask password
 /////https://stackoverflow.com/questions/6856635/hide-password-input-on-terminal
-int getch() {
+int getch()
+{
     int ch;
     struct termios t_old, t_new;
 
