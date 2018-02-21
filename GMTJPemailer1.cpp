@@ -38,12 +38,6 @@ struct smtpConfig
 	std::string password;
 	std::string from_name;
 	char from_email_address[60];
-
-//    template <class Archive>
-//    void serialize( Archive & ar )
-//        {
-//            ar( name, port, user_name, password, from_name, from_email_address  );
-//        }
 };
 
 //variables
@@ -449,15 +443,13 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
 
         res = curl_easy_perform(curl);
 
-        /* Check for errors */
+        // Check for errors.
         if(res != CURLE_OK)
           fprintf(stderr, "curl_easy_perform() failed: %s\n",
                   curl_easy_strerror(res));
 
-        /* Free the list of recipients */
+        //Free the list of recipients and clean up.
         curl_slist_free_all(recipients);
-
-        /* Always cleanup */
         curl_easy_cleanup(curl);
       }
 
