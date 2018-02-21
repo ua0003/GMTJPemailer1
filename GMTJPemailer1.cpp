@@ -39,11 +39,11 @@ struct smtpConfig
 	std::string from_name;
 	char from_email_address[60];
 
-    template <class Archive>
-    void serialize( Archive & ar )
-        {
-            ar( name, port, user_name, password, from_name, from_email_address  );
-        }
+//    template <class Archive>
+//    void serialize( Archive & ar )
+//        {
+//            ar( name, port, user_name, password, from_name, from_email_address  );
+//        }
 };
 
 //variables
@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
 			break;
 
 			case 'f':
-//smtpConfig theSMTPconfig;
+            //smtpConfig theSMTPconfig;
             smtpObj = configSMTP();
 			break;
 
@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
 	while (optionCount != -1);
 
 ///Check for serial data
-//if smtp data entered serialize the data.
+//If SMTP data entered serialize the data.
 if(smtpObj.password.length()>0)
 
     {
@@ -178,7 +178,6 @@ if(smtpObj.password.length()>0)
         std::ofstream os("GMTJPemailer.config", std::ios::binary);
         cereal::PortableBinaryOutputArchive oarchive( os );
         oarchive( smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.from_email_address, smtpObj.from_name, smtpObj.password );
-//        archive(smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address  );
         cout<<"Serializing STMP config data complete."<<endl;
         return 0;
     }
@@ -190,7 +189,6 @@ else
                 ifstream is("GMTJPemailer.config", std::ios::binary);
                 cereal::PortableBinaryInputArchive iarchive(is);
                 iarchive(smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.from_email_address, smtpObj.from_name, smtpObj.password);
-//                archive(  smtpObj.name, smtpObj.port, smtpObj.user_name, smtpObj.password, smtpObj.from_name, smtpObj.from_email_address );
                 cout<<"SMTP config data retrieved."<<endl;
             }
         catch(const std::exception&)
@@ -200,13 +198,13 @@ else
             };
     }
        ///template for email
-       //setup to from cc
+       //Setup to, from, cc.
 
 string TO = string (to.c_str());
 string FROM = string (smtpObj.from_email_address);
 string CC = string (cc.c_str());
 
-//use GMime to format the date.
+//Use GMime to format the date.
 GDateTime *forGmime = g_date_time_new_now_local ();
 char* forlibcurl = g_mime_utils_header_format_date(forGmime);
 
@@ -219,27 +217,27 @@ char* forlibcurl = g_mime_utils_header_format_date(forGmime);
     "Subject: %s\r\n"
     "\r\n"
     "%s\r\n\r\n";
-//declare variable for payload text length used for curl
+//Declare variable for payload text length used for curl
 size_t payload_text_len;
  payload_text_len = strlen(payload_template) +
                           strlen(forlibcurl) + strlen(subject.c_str()) +
                           strlen(TO.c_str()) + strlen(FROM.c_str()) +
                           strlen(msg.c_str()) + 1;
 
-//setaside memory for payload_text.
+//Setaside memory for payload_text.
 char* payload_text = (char*) malloc(payload_text_len);
 
 int sprintCheck = snprintf((char*)payload_text,payload_text_len,payload_template,const_cast<const char*>(forlibcurl),TO.c_str()
 ,FROM.c_str(),subject.c_str(),msg.c_str());
 
 cout<<"Preparing email file..."<<endl;
-//put payload text in temp file to be read by curl main.
+//Put payload text in temp file to be read by curl main.
 FILE *tmpf = tmpfile();
 fputs(const_cast<const char*>(payload_text),tmpf);
 rewind(tmpf);
 
-///    mainCurl
-//check if there is a to address before proceeding.
+///mainCurl
+//Check if there is a to address before proceeding.
     cout<<"Payload text length is: "<<payload_text_len<<endl;
     if(strlen(to.c_str()) /*&& strlen(bcc.c_str())*/<1)
         {
@@ -286,8 +284,8 @@ smtpConfig configSMTP()
         }
 	}
 
-//get rest of data
-//check to make sure that the port number is either 2 or 3 digits.
+//Get the rest of the data.
+//Check to make sure that the port number is either 2 or 3 digits.
     checker = 1;
     while(checker ==1)
     {
@@ -354,106 +352,114 @@ smtpConfig configSMTP()
 int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
 {
 
-  CURL *curl;
-  CURLcode res = CURLE_OK;
-  struct curl_slist *recipients = NULL;
+    CURL *curl;
+    CURLcode res = CURLE_OK;
+    struct curl_slist *recipients = NULL;
 
-  curl = curl_easy_init();
-  if(curl) {
-    string preformatted = "smtps://";
-    string smtpName = string (smtpObj.name);
-    string smtpPort = smtpObj.port;
-    string formatted =  preformatted+smtpName+":"+smtpPort;
-    string fromEmail = smtpObj.from_email_address;
-
-
-    // Set username and password
-    curl_easy_setopt(curl, CURLOPT_USERNAME, smtpObj.from_name.c_str());
-    curl_easy_setopt(curl, CURLOPT_PASSWORD, smtpObj.password.c_str());
-    //setup smtp structure upgrading to SSL
-    curl_easy_setopt(curl,CURLOPT_URL,formatted.c_str());
-    curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
-    curl_easy_setopt(curl, CURLOPT_MAIL_FROM, fromEmail.c_str());
-
-    //Add recipients
-       int found;
-       if(strlen(to.c_str())>0)
+    curl = curl_easy_init();
+    if(curl)
         {
-            found=to.find(" ");
-                if (found!=std::string::npos)
-                {
-                    while(to.find(" ") != std::string::npos)
+
+        string preformatted = "smtps://";
+        string smtpName = string (smtpObj.name);
+        string smtpPort = smtpObj.port;
+        string formatted =  preformatted+smtpName+":"+smtpPort;
+        string fromEmail = smtpObj.from_email_address;
+
+
+        // Set username and password
+        curl_easy_setopt(curl, CURLOPT_USERNAME, smtpObj.from_name.c_str());
+        curl_easy_setopt(curl, CURLOPT_PASSWORD, smtpObj.password.c_str());
+        //setup smtp structure upgrading to SSL
+        curl_easy_setopt(curl,CURLOPT_URL,formatted.c_str());
+        curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
+        curl_easy_setopt(curl, CURLOPT_MAIL_FROM, fromEmail.c_str());
+
+        //Add recipients
+           int found;
+           //Check if there is an email address.
+           if(strlen(to.c_str())>0)
+            {
+                //Check to see if there is more than one email address.
+                found=to.find(" ");
+                    if (found!=std::string::npos)
                     {
-                        to.replace(to.find(" "),1,">,<");
+                        while(to.find(" ") != std::string::npos)
+                        {
+                            to.replace(to.find(" "),1,">,<");
+                        }
+                        recipients = curl_slist_append(recipients, to.c_str());
+                        cout<<"Sending email to: <"<<to<<">"<<endl;
                     }
-                    recipients = curl_slist_append(recipients, to.c_str());
-                    cout<<"Sending email to: <"<<to<<">"<<endl;
-                }
-                else
-                {
-                    recipients = curl_slist_append(recipients, to.c_str());
-                    cout<<"Sending email to: "<<to<<endl;
-                }
-        }
-        if(strlen(cc.c_str())>0)
-        {
-            found=cc.find(" ");
-                if (found!=std::string::npos)
-                {
-                    while(cc.find(" ") != std::string::npos)
+                    else
                     {
-                        cc.replace(cc.find(" "),1,">,<");
+                        recipients = curl_slist_append(recipients, to.c_str());
+                        cout<<"Sending email to: "<<to<<endl;
                     }
-                    recipients = curl_slist_append(recipients, cc.c_str());
-                    cout<<"CC'ing email to: <"<<cc<<">"<<endl;
-                }
-                else
-                {
-                    recipients = curl_slist_append(recipients, cc.c_str());
-                    cout<<"CC'ing email to: "<<cc<<endl;
-                }
-        }
-        if(strlen(bcc.c_str())>0)
-        {
-            found=bcc.find(" ");
-                if (found!=std::string::npos)
-                {
-                    while(bcc.find(" ") != std::string::npos)
+            }
+            //Check if there is an email address.
+            if(strlen(cc.c_str())>0)
+            {
+                //Check to see if there is more than one email address.
+                found=cc.find(" ");
+                    if (found!=std::string::npos)
                     {
-                        bcc.replace(bcc.find(" "),1,">,<");
+                        while(cc.find(" ") != std::string::npos)
+                        {
+                            cc.replace(cc.find(" "),1,">,<");
+                        }
+                        recipients = curl_slist_append(recipients, cc.c_str());
+                        cout<<"CC'ing email to: <"<<cc<<">"<<endl;
                     }
-                    recipients = curl_slist_append(recipients, bcc.c_str());
-                    cout<<"BCC'ing email to: <"<<to<<">"<<endl;
-                }
-                else
-                {
-                    recipients = curl_slist_append(recipients, bcc.c_str());
-                    cout<<"BCC'ing email to: "<<bcc<<endl;
-                }
-        }
+                    else
+                    {
+                        recipients = curl_slist_append(recipients, cc.c_str());
+                        cout<<"CC'ing email to: "<<cc<<endl;
+                    }
+            }
+            //Check if there is an email address.
+            if(strlen(bcc.c_str())>0)
+            {
+                //Check to see if there is more than one email address.
+                found=bcc.find(" ");
+                    if (found!=std::string::npos)
+                    {
+                        while(bcc.find(" ") != std::string::npos)
+                        {
+                            bcc.replace(bcc.find(" "),1,">,<");
+                        }
+                        recipients = curl_slist_append(recipients, bcc.c_str());
+                        cout<<"BCC'ing email to: <"<<to<<">"<<endl;
+                    }
+                    else
+                    {
+                        recipients = curl_slist_append(recipients, bcc.c_str());
+                        cout<<"BCC'ing email to: "<<bcc<<endl;
+                    }
+            }
 
-    curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
-    curl_easy_setopt(curl, CURLOPT_READDATA, tmpf);
-    curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-    //turn on debug information for lib curl...
-    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
+        curl_easy_setopt(curl, CURLOPT_READDATA, tmpf);
+        curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+        //Turn on debug information for lib curl.
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
-    // Send the message
-    std::cout<<"About to send the email!"<<endl;
+        // Send the message.
+        std::cout<<"About to send the email!"<<endl;
 
-    res = curl_easy_perform(curl);
+        res = curl_easy_perform(curl);
 
-    /* Check for errors */
-    if(res != CURLE_OK)
-      fprintf(stderr, "curl_easy_perform() failed: %s\n",
-              curl_easy_strerror(res));
+        /* Check for errors */
+        if(res != CURLE_OK)
+          fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                  curl_easy_strerror(res));
 
-    /* Free the list of recipients */
-    curl_slist_free_all(recipients);
+        /* Free the list of recipients */
+        curl_slist_free_all(recipients);
 
-    /* Always cleanup */
-    curl_easy_cleanup(curl);
-  }
+        /* Always cleanup */
+        curl_easy_cleanup(curl);
+      }
 
   return (int)res;
 }
