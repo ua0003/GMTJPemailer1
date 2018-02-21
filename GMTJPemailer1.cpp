@@ -54,8 +54,7 @@ string cc;
 string bcc;
 string subject;
 string msg;
-string internationalCoding;
-string attachment;
+
 static smtpConfig smtpObj;
 
 //print usage statement for help or incorrect options
@@ -70,8 +69,6 @@ void print_usage(ostream& os, int exit_code)
 		<< " -b --bcc Requires an argument, email address to be blind copied." <<endl
 		<< " -s --subject Requires an argument, email subject. (enter in '' )" <<endl
 		<< " -m --message Requires an argument, email text//body. (enter in '')" <<endl
-		<< " -i --international Requires an argument, choose a UTF-8 character set. " <<endl
-//		<< "   TODO ADD LIST OF POSSIBLE CHARACTHER SETS       "
 		<< " -f --configure Used to setup initially. Will request SMTP server name, port number, your name, email address, user name, and password." <<endl;
 
 		exit (exit_code);
@@ -79,14 +76,13 @@ void print_usage(ostream& os, int exit_code)
 
 ///function prototypes
 smtpConfig configSMTP();
-//int mainCurl(_GMimePart*);
 int mainCurl(smtpConfig,FILE* tmpf, size_t payload_text_len);
 int getch();
 string getpass(const char *prompt, bool);
 GMimePart* mainGmime(string msg);
-//static size_t payload_source(char *ptr, size_t size, size_t nmemb, const char *userp);
 
 
+//Setup Cereal so it know what data to serialize.
 template<class Archive>
 void save(Archive & archive, smtpConfig const & m)
     {
@@ -156,10 +152,6 @@ int main(int argc, char* argv[])
 			msg = optarg;
 			break;
 
-			case 'i':
-			internationalCoding = optarg;
-			break;
-
 			case 'f':
 //smtpConfig theSMTPconfig;
             smtpObj = configSMTP();
@@ -178,7 +170,7 @@ int main(int argc, char* argv[])
 	while (optionCount != -1);
 
 ///Check for serial data
-
+//if smtp data entered serialize the data.
 if(smtpObj.password.length()>0)
 
     {
@@ -189,8 +181,8 @@ if(smtpObj.password.length()>0)
         cout<<"Serializing STMP config data complete."<<endl;
         return 0;
     }
-
-else if(smtpObj.password.length()<1)
+//Retrieve previously saved SMTP data.
+else
     {
         try
             {
@@ -382,15 +374,18 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
     curl_easy_setopt(curl, CURLOPT_MAIL_FROM, fromEmail.c_str());
 
     //Add recipients
-        int found;
+       int found;
        if(strlen(to.c_str())>0)
         {
             found=to.find(" ");
                 if (found!=std::string::npos)
                 {
-                    to.replace(to.find(" "),1,">, <");
+                    while(to.find(" ") != std::string::npos)
+                    {
+                        to.replace(to.find(" "),1,">,<");
+                    }
                     recipients = curl_slist_append(recipients, to.c_str());
-                    cout<<"Sending email to: "<<to<<endl;
+                    cout<<"Sending email to: <"<<to<<">"<<endl;
                 }
                 else
                 {
@@ -400,16 +395,41 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
         }
         if(strlen(cc.c_str())>0)
         {
-//            cc.replace(cc.find(" "),sizeof(">, <")-1,">, <");
-            recipients = curl_slist_append(recipients, cc.c_str());
-            cout<<"CC'ing email to: "<<cc<<endl;
+            found=cc.find(" ");
+                if (found!=std::string::npos)
+                {
+                    while(cc.find(" ") != std::string::npos)
+                    {
+                        cc.replace(cc.find(" "),1,">,<");
+                    }
+                    recipients = curl_slist_append(recipients, cc.c_str());
+                    cout<<"CC'ing email to: <"<<cc<<">"<<endl;
+                }
+                else
+                {
+                    recipients = curl_slist_append(recipients, cc.c_str());
+                    cout<<"CC'ing email to: "<<cc<<endl;
+                }
         }
         if(strlen(bcc.c_str())>0)
         {
-//            bcc.replace(bcc.find(" "),sizeof(">, <")-1,">, <");
-            recipients = curl_slist_append(recipients, bcc.c_str());
-            cout<<"BCC'ing email to: "<<bcc<<endl;
+            found=bcc.find(" ");
+                if (found!=std::string::npos)
+                {
+                    while(bcc.find(" ") != std::string::npos)
+                    {
+                        bcc.replace(bcc.find(" "),1,">,<");
+                    }
+                    recipients = curl_slist_append(recipients, bcc.c_str());
+                    cout<<"BCC'ing email to: <"<<to<<">"<<endl;
+                }
+                else
+                {
+                    recipients = curl_slist_append(recipients, bcc.c_str());
+                    cout<<"BCC'ing email to: "<<bcc<<endl;
+                }
         }
+
     curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
     curl_easy_setopt(curl, CURLOPT_READDATA, tmpf);
     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
