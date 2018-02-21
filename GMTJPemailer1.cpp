@@ -7,26 +7,19 @@
 #include <gmime/gmime.h>
 #include <glib-2.0/glib.h>
 #include <curl/curl.h>
-
 #include <string>
 #include <cstring>
-
-#include <getopt.h>  //used for arg parsing options
+#include <getopt.h>  //Used for arg parsing options.
 #include <cstdlib>
-#include <fstream> //used for binary serialization
-#include <cereal/cereal.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/base_class.hpp>
-#include <cereal/archives/portable_binary.hpp>
-#include <chrono>
-#include <ctime>
+#include <fstream> //Used for binary serialization.
+#include <cereal/cereal.hpp> //Used for binary serialization.
+#include <cereal/types/memory.hpp>//Used for binary serialization.
+#include <cereal/types/base_class.hpp> //Used for binary serialization.
+#include <cereal/archives/portable_binary.hpp> //Used for binary serialization.
 #include <iomanip>
-#include <list>
-#include <vector>
 #include <sstream>
 #include <termios.h>
 #include <memory>
-#include <typeinfo> //used for troubleshooting
 #include <algorithm>
 
 ///structure to hold smtp information
@@ -75,18 +68,6 @@ int getch();
 string getpass(const char *prompt, bool);
 GMimePart* mainGmime(string msg);
 
-
-//Setup Cereal so it know what data to serialize.
-//template<class Archive>
-//void save(Archive & archive, smtpConfig &m)
-//    {
-//        archive( m.name, m.port, m.user_name, m.from_email_address, m.from_name, m.password );
-//    }
-//template<class Archive>
-//void load(Archive & archive, smtpConfig & m)
-//    {
-//        archive( m.name, m.port, m.user_name, m.from_email_address, m.from_name, m.password);
-//    }
 ///MAIN
 
 int main(int argc, char* argv[])
