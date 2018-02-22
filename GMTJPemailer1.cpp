@@ -472,7 +472,7 @@ int getch()
 payload payloadCreate(char* d, string t, string c,string f, string s, string m )
 {
     payload createdPayload;
-    if(strlen(cc.c_str())!=0)
+    if(strlen(c.c_str())<1)
     {
          const char payload_template[] =
             "Date: %s\r\n"
