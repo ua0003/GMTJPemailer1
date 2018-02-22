@@ -21,6 +21,7 @@
 #include <termios.h>
 #include <memory>
 #include <algorithm>
+#include <vector>
 
 ///structure to hold smtp information
 struct smtpConfig
@@ -359,11 +360,12 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
                 found=to.find(" ");
                     if (found!=std::string::npos)
                     {
-                        while(to.find(" ") != std::string::npos)
-                        {
-                            to.replace(to.find(" "),1,">,<");
-                        }
-                        recipients = curl_slist_append(recipients, to.c_str());
+                        vector<string> splitTo;
+                        istringstream iss(to);
+                        for(string to; iss >> to; )
+                            splitTo.push_back(to);
+                        for(auto& to: splitTo)
+                            recipients = curl_slist_append(recipients, to.c_str());
                         cout<<"Sending email to: <"<<to<<">"<<endl;
                     }
                     else
@@ -379,11 +381,12 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
                 found=cc.find(" ");
                     if (found!=std::string::npos)
                     {
-                        while(cc.find(" ") != std::string::npos)
-                        {
-                            cc.replace(cc.find(" "),1,">,<");
-                        }
-                        recipients = curl_slist_append(recipients, cc.c_str());
+                        vector<string> splitCC;
+                        istringstream iss(cc);
+                        for(string cc; iss >> cc; )
+                            splitCC.push_back(cc);
+                        for(auto& cc: splitCC)
+                            recipients = curl_slist_append(recipients, cc.c_str());
                         cout<<"CC'ing email to: <"<<cc<<">"<<endl;
                     }
                     else
@@ -399,10 +402,11 @@ int mainCurl(smtpConfig,FILE* tmpf,size_t payload_text_len)
                 found=bcc.find(" ");
                     if (found!=std::string::npos)
                     {
-                        while(bcc.find(" ") != std::string::npos)
-                        {
-                            bcc.replace(bcc.find(" "),1,">,<");
-                        }
+                        vector<string> splitBCC;
+                        istringstream iss(bcc);
+                        for(string bcc; iss >> bcc; )
+                            splitBCC.push_back(bcc);
+                        for(auto& bcc: splitBCC)
                         recipients = curl_slist_append(recipients, bcc.c_str());
                         cout<<"BCC'ing email to: <"<<to<<">"<<endl;
                     }
