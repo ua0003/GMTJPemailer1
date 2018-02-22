@@ -33,7 +33,12 @@ struct smtpConfig
 	std::string from_name;
 	char from_email_address[60];
 };
-
+///structure to hold payload information
+struct payload
+{
+    char* payText;
+    int payLength;
+};
 //variables
 using namespace std;
 const char* program_name;
@@ -68,7 +73,7 @@ int mainCurl(smtpConfig,FILE* tmpf, size_t payload_text_len);
 int getch();
 string getpass(const char *prompt, bool);
 GMimePart* mainGmime(string msg);
-
+payload payloadCreate(char* d, string t, string c,string f, string s, string m );
 ///MAIN
 
 int main(int argc, char* argv[])
@@ -176,35 +181,40 @@ else
        ///template for email
        //Setup to, from, cc.
 
+string TOpretty;
 string TO = string (to.c_str());
-string FROM = string (smtpObj.from_email_address);
-string CC = string (cc.c_str());
+vector<string> prettyTO;
+istringstream tss(TO);
+    for( string TO; tss >> TO; )
+        prettyTO.push_back(TO);
 
+    for(auto& TO: prettyTO)
+        TOpretty = TOpretty + TO + ", ";
+
+string FROM = string (smtpObj.from_email_address);
+
+string CCpretty;
+string CC = string (cc.c_str());
+vector<string> prettyCC;
+istringstream css(CC);
+    for( string CC; css >> CC; )
+        prettyCC.push_back(CC);
+
+    for(auto& CC: prettyCC)
+        CCpretty = CCpretty + CC + ", ";
 //Use GMime to format the date.
 GDateTime *forGmime = g_date_time_new_now_local ();
 char* forlibcurl = g_mime_utils_header_format_date(forGmime);
 
 
+///PUT PAYLOAD CREATOR FUNCTION HERE
+///++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+payload usefulpayload;
 
- const char payload_template[] =
-    "Date: %s\r\n"
-    "To: %s\r\n"
-    "From: %s\r\n"
-    "Subject: %s\r\n"
-    "\r\n"
-    "%s\r\n\r\n";
-//Declare variable for payload text length used for curl
-size_t payload_text_len;
- payload_text_len = strlen(payload_template) +
-                          strlen(forlibcurl) + strlen(subject.c_str()) +
-                          strlen(TO.c_str()) + strlen(FROM.c_str()) +
-                          strlen(msg.c_str()) + 1;
+usefulpayload = payloadCreate(forlibcurl, TOpretty, CCpretty,FROM, subject, msg );
 
-//Setaside memory for payload_text.
-char* payload_text = (char*) malloc(payload_text_len);
-
-int sprintCheck = snprintf((char*)payload_text,payload_text_len,payload_template,const_cast<const char*>(forlibcurl),TO.c_str()
-,FROM.c_str(),subject.c_str(),msg.c_str());
+char * payload_text = usefulpayload.payText;
+int payload_text_len = usefulpayload.payLength;
 
 cout<<"Preparing email file..."<<endl;
 //Put payload text in temp file to be read by curl main.
@@ -457,4 +467,65 @@ int getch()
 
     tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
     return ch;
+}
+
+payload payloadCreate(char* d, string t, string c,string f, string s, string m )
+{
+    payload createdPayload;
+    if(strlen(cc.c_str())!=0)
+    {
+         const char payload_template[] =
+            "Date: %s\r\n"
+            "To: %s\r\n"
+            "From: %s\r\n"
+            "Subject: %s\r\n"
+            "\r\n"
+            "%s\r\n\r\n";
+
+        //Declare variable for payload text length used for curl
+        size_t payload_text_len;
+         payload_text_len = strlen(payload_template) +
+                                  strlen(d) + strlen(s.c_str()) +
+                                  strlen(t.c_str()) + strlen(f.c_str()) +
+                                  strlen(m.c_str()) + 1;
+
+        //Setaside memory for payload_text.
+        char* payload_text = (char*) malloc(payload_text_len);
+
+        int sprintCheck = snprintf((char*)payload_text,payload_text_len,payload_template,const_cast<const char*>(d),t.c_str()
+        ,f.c_str(),s.c_str(),m.c_str());
+
+        createdPayload.payLength =  payload_text_len;
+        createdPayload.payText = payload_text;
+        return createdPayload ;
+    }
+else
+    {
+        const char payload_template[] =
+            "Date: %s\r\n"
+            "To: %s\r\n"
+            "CC: %s\r\n"
+            "From: %s\r\n"
+            "Subject: %s\r\n"
+            "\r\n"
+            "%s\r\n\r\n";
+
+        //Declare variable for payload text length used for curl
+        size_t payload_text_len;
+         payload_text_len = strlen(payload_template) +
+                                  strlen(d) + strlen(s.c_str()) +
+                                  strlen(t.c_str()) +strlen(c.c_str())+ strlen(f.c_str()) +
+                                  strlen(m.c_str()) + 1;
+
+        //Setaside memory for payload_text.
+        char* payload_text = (char*) malloc(payload_text_len);
+
+        int sprintCheck = snprintf((char*)payload_text,payload_text_len,payload_template,const_cast<const char*>(d),t.c_str(),c.c_str()
+        ,f.c_str(),s.c_str(),m.c_str());
+
+        createdPayload.payLength =  payload_text_len;
+        createdPayload.payText = payload_text;
+        return createdPayload ;
+
+    }
 }
