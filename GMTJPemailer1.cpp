@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 			print_usage(cout, 0);
 
 			case 'v':
-			cout<< "This is version 1.0 of GMTJPemailer."<<endl;
+			cout<< "This is version 1.0 of GMTJPemailer, coded by Joshua Machnik."<<endl;
 			exit (0);
 
 			case 't':
@@ -207,8 +207,7 @@ GDateTime *forGmime = g_date_time_new_now_local ();
 char* forlibcurl = g_mime_utils_header_format_date(forGmime);
 
 
-///PUT PAYLOAD CREATOR FUNCTION HERE
-///++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+///Payload Function
 payload usefulpayload;
 
 usefulpayload = payloadCreate(forlibcurl, TOpretty, CCpretty,FROM, subject, msg );
@@ -475,12 +474,12 @@ payload payloadCreate(char* d, string t, string c,string f, string s, string m )
     if(strlen(c.c_str())<1)
     {
          const char payload_template[] =
-            "Date: %s\r\n"
-            "To: %s\r\n"
-            "From: %s\r\n"
-            "Subject: %s\r\n"
+            "Date: %s\r\n"      //d
+            "To: %s\r\n"        //t
+            "From: %s\r\n"      //f
+            "Subject: %s\r\n"   //s
             "\r\n"
-            "%s\r\n\r\n";
+            "%s\r\n\r\n";       //m
 
         //Declare variable for payload text length used for curl
         size_t payload_text_len;
@@ -502,13 +501,13 @@ payload payloadCreate(char* d, string t, string c,string f, string s, string m )
 else
     {
         const char payload_template[] =
-            "Date: %s\r\n"
-            "To: %s\r\n"
-            "CC: %s\r\n"
-            "From: %s\r\n"
-            "Subject: %s\r\n"
+            "Date: %s\r\n"      //d
+            "To: %s\r\n"        //t
+            "CC: %s\r\n"        //c
+            "From: %s\r\n"      //f
+            "Subject: %s\r\n"   //s
             "\r\n"
-            "%s\r\n\r\n";
+            "%s\r\n\r\n";       //m
 
         //Declare variable for payload text length used for curl
         size_t payload_text_len;
