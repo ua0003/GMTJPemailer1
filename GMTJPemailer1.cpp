@@ -58,10 +58,10 @@ void print_usage(ostream& os, int exit_code)
 		cout << " -h --help Display this usage information." << endl
 		<< " -v --version Display the version of the application." << endl
 		<< " -t --to Requires an argument, email address of recipient." << endl
-		<< " -c --cc Requires an argument, email address to be CC'd." <<endl
-		<< " -b --bcc Requires an argument, email address to be blind copied." <<endl
-		<< " -s --subject Requires an argument, email subject. (enter in '' )" <<endl
-		<< " -m --message Requires an argument, email text//body. (enter in '')" <<endl
+		<< " -c --cc Requires an argument, the option it’s self is optional, email address to be CC'd." <<endl
+		<< " -b --bcc Requires an argument, the option it’s self is optional, email address to be blind copied." <<endl
+		<< " -s --subject Requires an argument, email subject. (Enter in '' )" <<endl
+		<< " -m --message Requires an argument, email text//body. (Enter in '')" <<endl
 		<< " -f --configure Used to setup initially. Will request SMTP server name, port number, your name, email address, user name, and password." <<endl;
 
 		exit (exit_code);
