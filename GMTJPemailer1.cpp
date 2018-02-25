@@ -72,7 +72,6 @@ smtpConfig configSMTP();
 int mainCurl(smtpConfig,FILE* tmpf, size_t payload_text_len);
 int getch();
 string getpass(const char *prompt, bool);
-GMimePart* mainGmime(string msg);
 payload payloadCreate(char* d, string t, string c,string f, string s, string m );
 ///MAIN
 
@@ -224,7 +223,7 @@ rewind(tmpf);
 ///mainCurl
 //Check if there is a to address before proceeding.
     cout<<"Payload text length is: "<<payload_text_len<<endl;
-    if(strlen(to.c_str()) /*&& strlen(bcc.c_str())*/<1)
+    if(strlen(to.c_str())<1)
         {
             cout<<"SMTP configured but no email addresses have been detected in the TO or BCC field."<<endl;
             return 0;
@@ -490,8 +489,8 @@ payload payloadCreate(char* d, string t, string c,string f, string s, string m )
 
         //Setaside memory for payload_text.
         char* payload_text = (char*) malloc(payload_text_len);
-
-        int sprintCheck = snprintf((char*)payload_text,payload_text_len,payload_template,const_cast<const char*>(d),t.c_str()
+        //Fill out payload_template
+        snprintf((char*)payload_text,payload_text_len,payload_template,const_cast<const char*>(d),t.c_str()
         ,f.c_str(),s.c_str(),m.c_str());
 
         createdPayload.payLength =  payload_text_len;
@@ -518,8 +517,8 @@ else
 
         //Setaside memory for payload_text.
         char* payload_text = (char*) malloc(payload_text_len);
-
-        int sprintCheck = snprintf((char*)payload_text,payload_text_len,payload_template,const_cast<const char*>(d),t.c_str(),c.c_str()
+        //Fill out payload_template
+        snprintf((char*)payload_text,payload_text_len,payload_template,const_cast<const char*>(d),t.c_str(),c.c_str()
         ,f.c_str(),s.c_str(),m.c_str());
 
         createdPayload.payLength =  payload_text_len;
