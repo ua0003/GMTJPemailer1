@@ -5,7 +5,7 @@
 GMTJPEmailer1 is a command line email program.  It’s meant to be a convenient way to send emails from the command line so you don’t have to open up a browser window while working on the command line.  It’s also beneficial in that you can send a quick email without getting sucked into reading anything in your inbox. 
 
 ### Background
-GMTJP stands for Give Me The Job Please.  The program was designed to meet the requirements as a technical assessment  of my coding skills for a position in Konica Minolta’s SEC group. Emailer is part of the name as a way to describe what the program does and ‘1’ is because this is the second C/C++ program I have ever written. The first was the obligatory ‘Hello Word’ program.
+GMTJP stands for Give Me The Job Please.  The program was designed to meet the requirements as a technical assessment of my coding skills for a position in Konica Minolta’s SEC group. Emailer is part of the name as a way to describe what the program does and ‘1’ is because this is the second C/C++ program I have ever written. The first was the obligatory ‘Hello World’ program.
 
 ## USING
 GMTJPemailer1 is designed to be simple to use. It uses switches, a list of which that can be brought up using the -h or - - help option.
@@ -43,7 +43,7 @@ NotmyName'
 *IMPORTANT this program assumes a SSL connection will be used.  This means you can use the program with GMAIL.*
 
 ### Demo
-For demo purposes also make sure that the GMTJPemailer.config is in the same working directory as GMTJPemailer1. This file will allow you to send emails from a per-configured email address.
+For demo purposes also make sure that the GMTJPemailer.config is in the same working directory as GMTJPemailer1. This file will allow you to send emails from a pre-configured email address.
 
 For demo purposes the following information can be used to test the --configure function:
 
@@ -55,27 +55,28 @@ For demo purposes the following information can be used to test the --configure 
 
 ## Requirements
 
-**Operating System:** Linux – Debian based distro used for development.  Unknown whether other Linux environments will work.  
+**Operating System:** Linux – Debian based distro used for development.  Unknown whether other Linux environments will work. 
+
 **Libraries:** Glib, GMIME, Cereal, CURL
 
-**GLIB:**  version 2.0,  GNU LGPL,  https://github.com/GNOME/glib (Required for parameters 	of assignment.) A helpful link for installing and building if needed is below. 
+- **GLIB:**  version 2.0,  GNU LGPL,  https://github.com/GNOME/glib (Required for parameters of the assignment.) A helpful link for installing and building if needed is below. 
 
 http://linuxg.net/how-to-install-glib-2-36-3-on-ubuntu-and-linux-mint/
   
-**GMIME:** version 3.2.0, GNU Lesser General Public License 			https://github.com/GNOME/gmime (Required for parameters of assignment.) Used for Date 	formatting. 
+- **GMIME:** version 3.2.0, GNU Lesser General Public License https://github.com/GNOME/gmime (Required for parameters of the assignment.) Used for Date formatting. 
 
-**CEREAL:** version 1.2.2  BSD License https://uscilab.github.io/cereal/ Used for serializing 	data.
+- **CEREAL:** version 1.2.2  BSD License https://uscilab.github.io/cereal/ Used for serializing data.
 
-**CURL:** version 7.57.0  MIT/X derivate license (link to license 	https://curl.haxx.se/docs/copyright.html) https://curl.haxx.se/dev/source.html Used for 	SMTP protocol.
+- **CURL:** version 7.57.0  MIT/X derivate license (link to license https://curl.haxx.se/docs/copyright.html) https://curl.haxx.se/dev/source.html Used for SMTP protocol.
 
 **Compiler:** Minimum g++ 4.7.3, clang++ 3.3.  It needs to be C++11 compliant.
 
 Code::Blocks 13.12 was used for development
   
 ## Compiling
-#### Using Code::Blocks  (Can use similar steps with other programs.)
+#### Using Code::Blocks (You can use similar steps with other programs.)
 
-In compiler setting select “Have g++ follow the comping C++0x ISO C++ language standard [-std=c++0x]
+In "compiler setting" select “Have g++ follow the compiling C++0x ISO C++ language standard [-std=c++0x]
 
 In Linker settings add:
 
@@ -96,13 +97,15 @@ curl-config –libs
 
 In Search Directories enter:
 
-The include paths provided by the previous statements. Also include the directory that you put Cereal in.
+The include paths provided by the previous statements. Also, include the directory that you put Cereal in.
 
 Finally, load the GMTJPemailer1.cpp file into Code::Blocks and press Build.
 
 ## DESIGN
 ### Overview
-Conceptually I started working on this project with the thought that C++ was VERY similar to Python...which was ridiculously naive of me.   With that in mind the program was written in one file instead of separating things out into separate source and header files.  I never would have conceived of the idea of putting things in separate files to be compiled together later. Now, however I understand this would have made sense and would have made finding things in my code easier. Additionally, by the end of the project I came to the realization that I had written most of the code in C with a few interjections of C++ and writing more of it in C++ would have probably made my life easier.  
+Conceptually I started working on this project with the thought that C++ was VERY similar to Python...which was ridiculously naive of me.   With that in mind, the program was written in one file instead of separating things out into separate source and header files.  I  would never have conceived of the idea of putting things in separate files to be compiled together later before starting this project. Now, however, I understand this would have made sense and made finding things in my code easier. Additionally, by the end of the project, I came to the realization that I had written most of the code in C with a few interjections of C++ and writing more of it in C++ would have made my life easier.  
+
+This being a command line email program it needed to be reasonably simple to use, otherwise why not just use a browser? Also, security was of importance, as a result having the user's password masked and stored in a binary file as opposed to a text file was a priority.
 
 ### The Code
 #### Organization
@@ -136,11 +139,11 @@ The code is organized as outlined below:
  
   a) configSMTP
   
-   - Used for collecting the data needed for SMTP.
+   - Used for collecting the data needed for SMTP protocol.
 
   b) mainCurl
   
-   - Uses SMTP data to talk to and send email.
+   - Uses SMTP data to talk to and send the email.
 
   c) getch
   
@@ -148,10 +151,10 @@ The code is organized as outlined below:
 
   d) payloadCreate
   
-   - Used to format information from command line for MIME formatted email file.
+   - Used to format information from the command line for MIME formatted email file.
 
 ### Sample Code
-The below is links to and sample code I used to model my code along with sources I used for different parts of the code. 
+Below are links to and sample code I used to model my code along with sources I used for different parts of the code. 
 
 **GETOPT**
 
@@ -161,7 +164,7 @@ https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.ht
 
 **DATA SERIALIZATION**
 
-For serializing the data I used CEREAL both because of the cheesy graphic on their home page and most importantly ease of use.  The other added benefit of using Cereal was that the SMTP data would be stored in a binary file, which makes it slightly more difficult for someone to find the password to your email account.  I was able to follow the below code to serialize the SMTP data, which can be found at:  https://uscilab.github.io/cereal/quickstart.html
+For serializing the data I used CEREAL both because of the cheesy graphic on their home page and most importantly ease of use.  The other added benefit of using Cereal was that the SMTP data would be stored in a binary file, which makes it slightly more difficult for someone to find the password to your email account.  I was able to follow the below code to serialize the SMTP data, which can be found at https://uscilab.github.io/cereal/quickstart.html
 ```
 #include <cereal/archives/binary.hpp>
 #include <sstream>
@@ -187,10 +190,10 @@ int main()
 ```
 **CURL**
 
-For sending the SMTP email I decided to use CURL and follow the example found at:
+For sending the SMTP email I decided to use CURL and follow the example found at
 https://curl.haxx.se/libcurl/c/smtp-ssl.html
 
-This proved to be too rigid and the following proved to be super useful for fixing this. Found at:
+This proved to be too rigid and the code found at the following link was super useful for fixing this. Found at
 https://stackoverflow.com/questions/48383627/how-to-send-email-with-a-variable-declaration
 ```
 const char payload_template[] =
@@ -211,7 +214,7 @@ sprintf(payload_text, payload_template, time_buffer, to,
 
 **GETCH**
 
-For password masking I used the following code found on: http://www.cplusplus.com/articles/E6vU7k9E/:
+For password masking I used the following code found on http://www.cplusplus.com/articles/E6vU7k9E/:
 ```
 	int getch() {
     int ch;
@@ -230,7 +233,7 @@ For password masking I used the following code found on: http://www.cplusplus.co
 ```
 **REGEX**
 
-To validate email addresses I used method 3 , with some modifications, found at: https://www.wired.com/2008/08/four_regular_expressions_to_check_email_addresses/
+To validate email addresses I used method 3, with some modifications, found at https://www.wired.com/2008/08/four_regular_expressions_to_check_email_addresses/
 
 **MULTIPLE EMAIL ADDRESSES**
 
@@ -259,14 +262,14 @@ int main()
 
 **g_print():**  This was used in parts of the code to ensure that I was using some part of GLIB other than for using GMIME.
 
-**GMIME:** GMIME was used to generate a correctly formatted MIME date, which seems like overkill but so was anything GMIME did for this project.  I found that although the documentation was voluminous it was obtuse and there was very little third party documentation that I could find.  Looking back learning more about input/output streams and having GMIME write to a file might have worked but I had already spent far too many hours with it to consider a “might”.  
+**GMIME:** GMIME was used to generate a correctly formatted MIME date, which seems like overkill but so was anything GMIME did for this project.  I found that although the documentation was voluminous it was obtuse and there was very little third party documentation that I could find.  Looking back learning more about input/output streams and having GMIME write to a file *might* have worked but I had already spent far too many hours with it to consider a “might”.  
 
-**CURL:**  Although most examples I found showed using the payload_source function in various forms I found this to be impossible to adapt for my purposes. It was cumbersome and in the end I could never figure out just how it would work without everything being a global variable. Using the temporary file method proved to be infinitely simpler.
+**CURL:**  Although most examples I found showed using the payload_source function in various forms I found this to be impossible to adapt for my purposes. It was cumbersome and in the end, I could never figure out just how it would work without everything being a global variable. Using the temporary file method proved to be infinitely simpler.
 
-**GETCH:**  Implementing a password masking with * would have been preferable but I liked the simplicity of the sample code I found, and most importantly it masks the users password adding a layer of protection from over the shoulder snoops.
+**GETCH:**  Implementing a password masking with * would have been preferable but I liked the simplicity of the code I found, and most importantly it masks the user's password adding a layer of protection from over the shoulder snoops.
 
 ## Troubleshooting
-- If you are using two step verification be sure to create an app id for this program.  Instructions for how to do this can be found at: https://support.google.com/accounts/answer/185833?hl=en 
+- If you are using Google two-step verification be sure to create an app id for this program.  Instructions on how to do this can be found at https://support.google.com/accounts/answer/185833?hl=en 
 - Use the following on the command line ```ldconfig``` after loading new libraries.
 - If the program hangs during the first run. Try re-running the command. 
 - Don't use Valgrind while running this program.  There seems to be an error with Valgrind and Valgrind will crash without sending your email.
