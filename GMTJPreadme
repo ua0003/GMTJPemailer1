@@ -1,9 +1,0 @@
-REQUIREMENTS
-
-Libraries:
-
-cxxopts 
-
-https://github.com/jarro2783/cxxopts.git
-
-Requires  C++ compiler compatible with C++11 regular expressions such as GNU >= 4.9
