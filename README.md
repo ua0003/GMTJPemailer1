@@ -165,7 +165,7 @@ https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.ht
 **DATA SERIALIZATION**
 
 For serializing the data I used CEREAL both because of the cheesy graphic on their home page and most importantly ease of use.  The other added benefit of using Cereal was that the SMTP data would be stored in a binary file, which makes it slightly more difficult for someone to find the password to your email account.  I was able to follow the below code to serialize the SMTP data, which can be found at https://uscilab.github.io/cereal/quickstart.html
-```
+```C++
 #include <cereal/archives/binary.hpp>
 #include <sstream>
 
@@ -195,7 +195,7 @@ https://curl.haxx.se/libcurl/c/smtp-ssl.html
 
 This proved to be too rigid and the code found at the following link was super useful for fixing this. Found at
 https://stackoverflow.com/questions/48383627/how-to-send-email-with-a-variable-declaration
-```
+```C++
 const char payload_template[] =
         "Date: %s\r\n"
         "To: %s\r\n"
@@ -215,7 +215,7 @@ sprintf(payload_text, payload_template, time_buffer, to,
 **GETCH**
 
 For password masking I used the following code found on http://www.cplusplus.com/articles/E6vU7k9E/:
-```
+```C++
 	int getch() {
     int ch;
     struct termios t_old, t_new;
@@ -238,7 +238,7 @@ To validate email addresses I used method 3, with some modifications, found at h
 **MULTIPLE EMAIL ADDRESSES**
 
 In order to solve the issue of allowing multiple email addresses to be used for a single option like TO, CC, or BCC I needed a way to easily enter them on the command line and have the program separate out the email addresses to be loaded.  To accomplish this I used the below snippet of code which was found at https://www.quora.com/How-do-I-split-a-string-by-space-into-an-array-in-c++
-```
+```C++
 #include <string>
 #include <vector>
 #include <iostream>
