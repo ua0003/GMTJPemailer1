@@ -53,7 +53,7 @@ For demo purposes the following information can be used to test the --configure 
 - **Sign in Name:** gmtjpemailer
 - **Password:** Konica18
 
-## Requirements
+## REQUIREMENTS
 
 **Operating System:** Linux – Debian based distro used for development.  Unknown whether other Linux environments will work. 
 
@@ -73,7 +73,7 @@ http://linuxg.net/how-to-install-glib-2-36-3-on-ubuntu-and-linux-mint/
 
 Code::Blocks 13.12 was used for development
   
-## Compiling
+## COMPILING
 #### Using Code::Blocks (You can use similar steps with other programs.)
 
 In "compiler setting" select “Have g++ follow the compiling C++0x ISO C++ language standard [-std=c++0x]
@@ -268,7 +268,7 @@ int main()
 
 **GETCH:**  Implementing a password masking with * would have been preferable but I liked the simplicity of the code I found, and most importantly it masks the user's password adding a layer of protection from over the shoulder snoops.
 
-## Troubleshooting
+## TROUBLESHOOTING
 - If you are using Google two-step verification be sure to create an app id for this program.  Instructions on how to do this can be found at https://support.google.com/accounts/answer/185833?hl=en 
 - Use the following on the command line ```ldconfig``` after loading new libraries.
 - If the program hangs during the first run. Try re-running the command. 
