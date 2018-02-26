@@ -116,42 +116,25 @@ The code is organized as outlined below:
  4. Usage statement for command line options
  5. Function prototypes
  6. Main
- 
-  a) Setup command line options
-  
-  b) do while loop for command line options
-  
-  c) Check to see if SMTP data needs to be serialized
-  
-   - Serialize or load data
-     
-  d) Clean up email addresses to be used in MIME formatted email file.
-  
-  e) Calculate date/time with GMIME for email.
-  
-  f) Load email file with command line options (payloadCreate function)
-  
-  g) Check to make sure a “TO” address was entered
-  
-  h) Send email
+    1. Setup command line options
+    2. do while loop for command line options
+    3. Check to see if SMTP data needs to be serialized
+       - Serialize or load data
+    4. Clean up email addresses to be used in MIME formatted email file.
+    5. Calculate date/time with GMIME for email.
+    6. Load email file with command line options (payloadCreate function)
+    7. Check to make sure a “TO” address was entered
+    8. Send email
   
  7. Function definitions
- 
-  a) configSMTP
-  
-   - Used for collecting the data needed for SMTP protocol.
-
-  b) mainCurl
-  
-   - Uses SMTP data to talk to and send the email.
-
-  c) getch
-  
-   - Used to mask the password entered by the user.
-
-  d) payloadCreate
-  
-   - Used to format information from the command line for MIME formatted email file.
+    1. configSMTP
+       - Used for collecting the data needed for SMTP protocol.
+    2. mainCurl
+       - Uses SMTP data to talk to and send the email.
+    3. getch
+       - Used to mask the password entered by the user.
+    4. payloadCreate
+       - Used to format information from the command line for MIME formatted email file.
 
 ### Sample Code
 Below are links to and sample code I used to model my code along with sources I used for different parts of the code. 
