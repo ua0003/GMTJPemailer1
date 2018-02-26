@@ -41,6 +41,18 @@ Thanks,
 NotmyName'
 ```
 *IMPORTANT this program assumes a SSL connection will be used.  This means you can use the program with GMAIL.*
+
+### Demo
+For demo purposes also make sure that the GMTJPemailer.config is in the same working directory as GMTJPemailer1. This file will allow you to send emails from a per-configured email address.
+
+For demo purposes the following information can be used to test the --configure function:
+
+- **SMTP Server Name:** smtp.gmail.com
+- **Port Number:** 465
+- **Email Address:** gmtjpemailer@gmail.com
+- **Sign in Name:** gmtjpemailer
+- **Password:** Konica18
+
 ## Requirements
 
 **Operating System:** Linux – Debian based distro used for development.  Unknown whether other Linux environments will work.  
@@ -87,17 +99,6 @@ In Search Directories enter:
 The include paths provided by the previous statements. Also include the directory that you put Cereal in.
 
 Finally, load the GMTJPemailer1.cpp file into Code::Blocks and press Build.
-
-### Demo
-For demo purposes also make sure that the GMTJPemailer.config is in the same working directory as GMTJPemailer1. This file will allow you to send emails from a per-configured email address.
-
-For demo purposes the following information can be used to test the --configure function:
-
-- **SMTP Server Name:** smtp.gmail.com
-- **Port Number:** 465
-- **Email Address:** gmtjpemailer@gmail.com
-- **Sign in Name:** gmtjpemailer
-- **Password:** Konica18
 
 ## DESIGN
 ### Overview
