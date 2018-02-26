@@ -31,7 +31,7 @@ For Example:
 -t ‘myemail@somemail.com otheremail@diffemail.com’ 
 ```
 
-A full example of a what an email might look like:
+A full example of what an email might look like:
 ```
 GMTJPemailer1 -t 'someone@notarealemail.com yetanother@stillnotanemail.com' -c pretendperson@someotheremail.com -b myotheremail@notreally.com -s 'Hello there!' -m 'Hi,
 
@@ -85,7 +85,7 @@ In Linker settings add:
 - -L/usr/local/lib -lcurl
 - -L/usr/local/lib -lgmime-3.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0
 
-*locations of your libraries may differ.*
+*Locations of your libraries may differ.*
 
 Running the following commands will help identify Include and Linking paths
 ```
