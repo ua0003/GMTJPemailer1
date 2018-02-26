@@ -24,12 +24,24 @@ GMTJPemailer1 is designed to be simple to use. It uses switches, a list of which
  
 -f --configure Used to setup initially. Configure will request your SMTP server name, port number, your name, email address, user name, and password. This information will be used later to send your emails.  If you do not use this option first the program will take you through the SMTP setup automatically. The configuration process will create a file called GMTJPemailer.config to store the SMTP data.  
 
-You can enter multiple email addresses for the to, cc, and bcc field by entering them in ‘ ‘ separated by spaced. 
+You can enter multiple email addresses for the to, cc, and bcc field by entering them in quotes and separating them by a space. 
 
-(Ex.  -t ‘myemail@somemail.com otheremail@diffemail.com’ )
+For Example: 
+```
+-t ‘myemail@somemail.com otheremail@diffemail.com’ 
+```
 
-*IMPORTANT this program assumes a SSL connection will be used.  This means you can use the program with GMAIL.
-Requirements*
+A full example of a what an email might look like:
+```
+GMTJPemailer1 -t 'someone@notarealemail.com yetanother@stillnotanemail.com' -c pretendperson@someotheremail.com -b myotheremail@notreally.com -s 'Hello there!' -m 'Hi,
+
+How are you doing?
+
+Thanks,
+NotmyName'
+```
+*IMPORTANT this program assumes a SSL connection will be used.  This means you can use the program with GMAIL.*
+## Requirements
 
 **Operating System:** Linux – Debian based distro used for development.  Unknown whether other Linux environments will work.  
 **Libraries:** Glib, GMIME, Cereal, CURL
@@ -78,6 +90,15 @@ Finally, load the GMTJPemailer1.cpp file into Code::Blocks and press Build.
 
 ### Demo
 For demo purposes also make sure that the GMTJPemailer.config is in the same working directory as GMTJPemailer1. This file will allow you to send emails from a per-configured email address.
+
+For demo purposes the following information can be used to test the --configure function:
+
+- **SMTP Server Name:** smtp.gmail.com
+- **Port Number:** 465
+- **Email Address:** gmtjpemailer@gmail.com
+- **Sign in Name:** gmtjpemailer
+- **Password:** Konica18
+
 ## DESIGN
 ### Overview
 Conceptually I started working on this project with the thought that C++ was VERY similar to Python...which was ridiculously naive of me.   With that in mind the program was written in one file instead of separating things out into separate source and header files.  I never would have conceived of the idea of putting things in separate files to be compiled together later. Now, however I understand this would have made sense and would have made finding things in my code easier. Additionally, by the end of the project I came to the realization that I had written most of the code in C with a few interjections of C++ and writing more of it in C++ would have probably made my life easier.  
@@ -245,5 +266,6 @@ int main()
 
 ## Troubleshooting
 - If you are using two step verification be sure to create an app id for this program.  Instructions for how to do this can be found at: https://support.google.com/accounts/answer/185833?hl=en 
-- Run ldconfig after loading new libraries.
+- Use the following on the command line ```ldconfig``` after loading new libraries.
 - If the program hangs during the first run. Try re-running the command. 
+- Don't use Valgrind while running this program.  There seems to be an error with Valgrind and Valgrind will crash without sending your email.
